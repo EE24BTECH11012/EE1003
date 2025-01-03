@@ -57,25 +57,55 @@
 \numberwithin{figure}{enumi}
 \renewcommand{\thetable}{\theenumi}
 
+\textbf{LAPLACE TRANSFORMS} \\
+\begin{itemize}
+	\item Transformation applied on a function results in a function of another variable, unlike an operation which when applied on a function yields another function but of the same variable.
+	\item Laplace transform is a very useful technique used to solve complex equations using \textbf{integral transformations}.
+	\item Any equation of the form $\int_{a}^{b} f(t) K(p,t) dt = F(p)$ is called an integral transformation, and the function $K(p,t)$ is called the \textbf{Kernel function}. \\
+		When $a = 0 \text{ and } b = \infty$, then the integral transformation is called the Laplace transformation.
+	\item Notation : Laplace transform of a function $f(x)$ is denoted as $\mathcal{L} \brak{f(x)}$, i.e., $$\mathcal{L} \brak{f(x)} = F(s) = \int_{0}^{\infty} f(x) e^{-sx} dx $$.
+	\item It is a linear transformation, since integration is a linear operation.
+	\item Laplace transform of some functions : 
+		\begin{align}
+			f(x) = 0 &\implies F(s) = 0 \\
+			f(x) = 1 &\implies F(s) = \frac{1}{s} \\
+			f(x) = x^n &\implies F(s) = \frac{n!}{s^{n+1}} \\
+			f(x) = e^{at} &\implies F(s) = \frac{1}{s-a} \\
+			f(x) = \sin{ax} &\implies F(s) = \frac{a}{s^2 + a^2} \\
+			f(x) = \cos{ax} &\implies F(s) = \frac{s}{s^2 + a^2}
+		\end{align}
+	\item Some other useful results include :
+		\begin{align}
+			\mathcal{L} \brak{f^{\prime}(x)} &= s F(s) - f(0^{-}) \\
+			\mathcal{L} \brak{f^{\prime}(x)} &= s^2 F(s) - s f(0^{-}) - f^{\prime}(0^{-})
+		\end{align}
+\end{itemise}
+\newpage
+
 \textbf{QUESTION}:\\
 Consider the differential equation $\frac{d^2 y}{d x^2} - \frac{dy}{dx} = 0$. Verify that $y = e^x + 1$ is a solution for it. \\
 \textbf{SOLUTION}: \\
 %\input{tables/table.tex} \\ \\ \\
 Consider the differential equation, 
 $$ \frac{d^2 y}{d x^2} - \frac{dy}{dx} = 0 $$
-Let $y = Ae^{bx}$ be a solution, then \\
+Applying Laplace transform on both sides, we have \\
 \begin{align}
-	Ab^2 e^{bx} - Ab e^{bx} &= 0 \\
-	b^2 - b &= 0 \\
-	\end{align}
-\boxed{b = 0 } \text{ and } \boxed{b = 1} \\
-Hence, the solution is $y = A_1 e^{x} + A_2 $ \\
-If $A_1 = A_2 = 1$, then the solution becomes $y = e^x + 1$ \\
-Hence, verified.
+	\mathcal{L} \brak{\frac{d^2 y}{d x^2} - \frac{dy}{dx}} &= \mathcal{L} \brak{0} \\
+	\mathcal{L} \brak{\frac{d^2 y}{d x^2}} - \mathcal{L} \brak{\frac{dy}{dx}} &= \mathcal{L} \brak{0} \\
+	\brak{s^2 F(s) - s f(0^{-}) - f^{\prime}(0^{-})} - \brak{s F(s) - f(0^{-})} &= 0 \\
+	F(s) \brak{s^2 - s} - f(0^{-}) \brak{s-1} - f^{\prime}(0^{-}) &= 0 \\
+	F(s) &= \frac{f(0^{-}) \brak{s-1} + f^{\prime}(0^{-})}{s^2 - s} \\
+	\mathcal{L} \brak{f(x)} &= \frac{f(0^{-}) - f^{\prime}(0^{-})}{s} + \frac{f^{\prime}(0^{-})}{s-1} \\
+	\brak{f(x)} &= \mathcal{L}^{-1} \brak{\frac{f(0^{-}) - f^{\prime}(0^{-})}{s} + \frac{f^{\prime}(0^{-})}{s-1}} \\
+	\implies \brak{f(x)} &= \brak{f(0^{-}) - f^{\prime}(0^{-})} \mathcal{L}^{-1} \brak{\frac{1}{s}} + f^{\prime}(0^{-}) \mathcal{L}^{-1} \brak{\frac{1}{s-1}} \\
+	f(x) &= \brak{f(0^{-}) - f^{\prime}(0^{-})} + f^{\prime}(0^{-}) e^{x}
+\end{align}
+When $f^{\prime}(0^{-}) = 1 \text{ and } f(0^{-}) = 2$, we have $y = e^x + 1$, which is the required solution. \\
+Hence verified.
 
 \begin{figure}[h]
 				 \centering
-				 \includegraphics[width=0.8\textwidth]{figs/fig.png}
+				 \includegraphics[width=\columnwidth]{figs/fig.png}
 				 \caption{A plot of the given question.}
 				 \label{fig:Plot1}
 			 \end{figure}
