@@ -59,13 +59,16 @@
 
 \textbf{LAPLACE TRANSFORMS} \\
 \begin{itemize}
-	\item Transformation applied on a function results in a function of another variable, unlike an operation which when applied on a function yields another function but of the same variable.
-	\item Laplace transform is a very useful technique used to solve complex equations using \textbf{integral transformations}.
-	\item Any equation of the form $\int_{a}^{b} f(t) K(p,t) dt = F(p)$ is called an integral transformation, and the function $K(p,t)$ is called the \textbf{Kernel function}. \\
-		When $a = 0 \text{ and } b = \infty$, then the integral transformation is called the Laplace transformation.
-	\item Notation : Laplace transform of a function $f(x)$ is denoted as $\mathcal{L} \brak{f(x)}$, i.e., $$\mathcal{L} \brak{f(x)} = F(s) = \int_{0}^{\infty} f(x) e^{-sx} dx $$.
+	%\item Transformation applied on a function results in a function of another variable, unlike an operation which when applied on a function yields another function but of the same variable.
+	%\item Laplace transform is a very useful technique used to solve complex equations using \textbf{integral transformations}.
+	%\item Any equation of the form $\int_{a}^{b} f(t) K(p,t) dt = F(p)$ is called an integral transformation, and the function $K(p,t)$ is called the \textbf{Kernel function}. \\
+		%When $a = 0 \text{ and } b = \infty$, then the integral transformation is called the Laplace transformation.
+	\item \textbf{Notation} : Laplace transform of a function $f(x)$ is denoted as $\mathcal{L} \brak{f(x)}$, i.e., 
+		\begin{align}
+			\mathcal{L} \brak{f(x)} = F(s) = \int_{0}^{\infty} f(x) e^{-sx} dx \label{eq:lap} 
+		\end{align}
 	\item It is a linear transformation, since integration is a linear operation.
-	\item Laplace transform of some functions : 
+	\item \textbf{Laplace transform of some functions :} 
 		\begin{align}
 			f(x) = 0 &\implies F(s) = 0 \\
 			f(x) = 1 &\implies F(s) = \frac{1}{s} \\
@@ -74,34 +77,91 @@
 			f(x) = \sin{ax} &\implies F(s) = \frac{a}{s^2 + a^2} \\
 			f(x) = \cos{ax} &\implies F(s) = \frac{s}{s^2 + a^2}
 		\end{align}
-	\item Some other useful results include :
+	\item \textbf{Some other useful results include :}
 		\begin{align}
 			\mathcal{L} \brak{f^{\prime}(x)} &= s F(s) - f(0^{-}) \\
-			\mathcal{L} \brak{f^{\prime}(x)} &= s^2 F(s) - s f(0^{-}) - f^{\prime}(0^{-})
+			\mathcal{L} \brak{f^{\prime \prime}(x)} &= s^2 F(s) - s f(0^{-}) - f^{\prime}(0^{-}) 
 		\end{align}
-\end{itemise}
-\newpage
+	\item \textbf{Laplace transform of unit step function $u(t)$ :} \\
+		\begin{align}
+			u(t) &= 
+			\begin{cases} 
+			1 & t \geq 0 \\
+			0 & t < 0
+			\end{cases} 
+		\end{align}
+			\text{From \eqref{eq:lap}}
+		\begin{align}
+			\mathcal{L} \brak{u(t)} &= \int_{0}^{\infty} u(t) e^{-st} dt 
+		\end{align}
+		For all non-negative values, $u(t) = 1$. Hence, the integral becomes,
+		\begin{align}
+			F(s) &= \int_{0}^{\infty} (1)e^{-st} dt \\
+			F(s) &= \left[ \frac{e^{-st}}{-s} \right]_{0}^{\infty} = \frac{1}{s} \label{eq:first}
+		\end{align}
+	\item \textbf{Laplace transform of $e^{at} u(t)$ :} \\
+		From \eqref{eq:lap}
+		\begin{align}
+			\mathcal{L} \brak{e^{at} u(t)} &= \int_{0}^{\infty} e^{at} u(t) e^{-st} dt \\
+			F(s) &= \int_{0}^{\infty} e^{(a-s)t} dt \\
+			F(s) &= \left[\frac{e^{(a-s)t}}{a-s} \right]_{0}^{\infty} = \frac{1}{s-a} 
+		\end{align}
+		When $a=1$, 
+		\begin{align}
+			F(s) = \mathcal{L} \brak{e^t u(t)} = \frac{1}{s-1} \label{eq:second} 
+		\end{align}
+\end{itemize}
 
 \textbf{QUESTION}:\\
-Consider the differential equation $\frac{d^2 y}{d x^2} - \frac{dy}{dx} = 0$. Verify that $y = e^x + 1$ is a solution for it. \\
+Consider the differential equation $\frac{d^2 y}{d x^2} - \frac{dy}{dx} = 0$. Verify that $y = e^x + 1$ is a solution for it, given the initial condtitions $y(0) = 2 \text{ and } y^{\prime} (0) = 1$ . \\
 \textbf{SOLUTION}: \\
 %\input{tables/table.tex} \\ \\ \\
 Consider the differential equation, 
-$$ \frac{d^2 y}{d x^2} - \frac{dy}{dx} = 0 $$
-Applying Laplace transform on both sides, we have \\
+\begin{align} 
+	\frac{d^2 y}{d x^2} - \frac{dy}{dx} = 0 \label{eq:third} 
+\end{align}
+Integrating \eqref{eq:third} on both the sides, we have, 
+\begin{align}
+	\int \brak{\frac{d^2 y}{d x^2} - \frac{dy}{dx}} dx &= \int \brak{0} dx \\
+	\frac{dy}{dx} - y &= k  
+\end{align}
+where, $k$ is a constant. Applying the initial conditions, we have
+\begin{align}
+	k &= 1-2 = -1 \\
+	\frac{dy}{dx} &= y - 1 \label{eq:fourth}
+\end{align}
+Applying Laplace transform to \eqref{eq:third} on both sides, we have \\
 \begin{align}
 	\mathcal{L} \brak{\frac{d^2 y}{d x^2} - \frac{dy}{dx}} &= \mathcal{L} \brak{0} \\
 	\mathcal{L} \brak{\frac{d^2 y}{d x^2}} - \mathcal{L} \brak{\frac{dy}{dx}} &= \mathcal{L} \brak{0} \\
 	\brak{s^2 F(s) - s f(0^{-}) - f^{\prime}(0^{-})} - \brak{s F(s) - f(0^{-})} &= 0 \\
 	F(s) \brak{s^2 - s} - f(0^{-}) \brak{s-1} - f^{\prime}(0^{-}) &= 0 \\
 	F(s) &= \frac{f(0^{-}) \brak{s-1} + f^{\prime}(0^{-})}{s^2 - s} \\
-	\mathcal{L} \brak{f(x)} &= \frac{f(0^{-}) - f^{\prime}(0^{-})}{s} + \frac{f^{\prime}(0^{-})}{s-1} \\
-	\brak{f(x)} &= \mathcal{L}^{-1} \brak{\frac{f(0^{-}) - f^{\prime}(0^{-})}{s} + \frac{f^{\prime}(0^{-})}{s-1}} \\
-	\implies \brak{f(x)} &= \brak{f(0^{-}) - f^{\prime}(0^{-})} \mathcal{L}^{-1} \brak{\frac{1}{s}} + f^{\prime}(0^{-}) \mathcal{L}^{-1} \brak{\frac{1}{s-1}} \\
-	f(x) &= \brak{f(0^{-}) - f^{\prime}(0^{-})} + f^{\prime}(0^{-}) e^{x}
+	\mathcal{L} \brak{f(x)} &= \frac{f(0^{-}) - f^{\prime}(0^{-})}{s} + \frac{f^{\prime}(0^{-})}{s-1}  
+\end{align} \\
+Substituting the initial conditions, $y(0^{-}) = 2 \text{ and } y^{\prime} (0^{-}) = 1$, we have \\ 
+\begin{align}
+	f(x) &= \mathcal{L}^{-1} \brak{\frac{1}{s} + \frac{1}{s-1}} \\
+	f(x) &= \mathcal{L}^{-1} \brak{\frac{1}{s}} + \mathcal{L}^{-1} \brak{\frac{1}{s-1}}  
 \end{align}
-When $f^{\prime}(0^{-}) = 1 \text{ and } f(0^{-}) = 2$, we have $y = e^x + 1$, which is the required solution. \\
-Hence verified.
+From, \eqref{eq:first} and \eqref{eq:second}, it can be deduced that
+\begin{align}
+	f(x) &= 1 + e^x
+\end{align}
+Hence, verified. \\
+\textbf{ALGORITHM :} \\
+\begin{align}
+	 x_0 &= 0 \\
+	 y_0 &= 2 \\
+	 h &= 0.01 \\
+	 x_{n+1} &= x_{n} + h \\
+	 y_{n+1} &= y_{n} + h \brak{y^{\prime}} 
+\end{align}
+From \eqref{eq:fourth}, 
+\begin{align}
+	y_{n+1} = y_{n} + h \brak{y_{n} - 1}
+\end{align}
+which is the required difference equation.
 
 \begin{figure}[h]
 				 \centering
