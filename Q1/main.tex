@@ -71,11 +71,11 @@
 	\item \textbf{Laplace transform of some functions :} 
 		\begin{align}
 			f(x) = 0 &\implies F(s) = 0 \\
-			f(x) = 1 &\implies F(s) = \frac{1}{s} \text{ for } s > 0\\
-			f(x) = x^n &\implies F(s) = \frac{n!}{s^{n+1}} \text{ for } s > 0 \\
-			f(x) = e^{at} &\implies F(s) = \frac{1}{s-a} \text{ for } s > a \\
-			f(x) = \sin{ax} &\implies F(s) = \frac{a}{s^2 + a^2} \text{ for } s > 0 \\
-			f(x) = \cos{ax} &\implies F(s) = \frac{s}{s^2 + a^2} \text{ for } s > 0
+			f(x) = 1 &\implies F(s) = \frac{1}{s} \text{ for } Re(s) > 0\\
+			f(x) = x^n &\implies F(s) = \frac{n!}{s^{n+1}} \text{ for } Re(s) > 0 \\
+			f(x) = e^{at} &\implies F(s) = \frac{1}{s-a} \text{ for } Re(s) > a \\
+			f(x) = \sin{ax} &\implies F(s) = \frac{a}{s^2 + a^2} \text{ for } Re(s) > 0 \\
+			f(x) = \cos{ax} &\implies F(s) = \frac{s}{s^2 + a^2} \text{ for } Re(s) > 0
 		\end{align}
 	\item \textbf{Some other useful results include :}
 		\begin{align}
@@ -97,18 +97,18 @@
 		For all non-negative values, $u(t) = 1$. Hence, the integral becomes,
 		\begin{align}
 			F(s) &= \int_{0}^{\infty} (1)e^{-st} dt \\
-			F(s) &= \left[ \frac{e^{-st}}{-s} \right]_{0}^{\infty} = \frac{1}{s} ,  \text{ for } s > 0 \label{eq:first}
+			F(s) &= \left[ \frac{e^{-st}}{-s} \right]_{0}^{\infty} = \frac{1}{s} ,  \text{ for } Re(s) > 0 \label{eq:first}
 		\end{align}
 	\item \textbf{Laplace transform of $e^{at} u(t)$ :} \\
 		From \eqref{eq:lap}
 		\begin{align}
 			\mathcal{L} \brak{e^{at} u(t)} &= \int_{0}^{\infty} e^{at} u(t) e^{-st} dt \\
 			F(s) &= \int_{0}^{\infty} e^{(a-s)t} dt \\
-			F(s) &= \left[\frac{e^{(a-s)t}}{a-s} \right]_{0}^{\infty} = \frac{1}{s-a} , \text{ for } s > a
+			F(s) &= \left[\frac{e^{(a-s)t}}{a-s} \right]_{0}^{\infty} = \frac{1}{s-a} , \text{ for } Re(s) > a
 		\end{align}
 		When $a=1$, 
 		\begin{align}
-			F(s) = \mathcal{L} \brak{e^t u(t)} = \frac{1}{s-1} \label{eq:second} \text{ for } s > 1  
+			F(s) = \mathcal{L} \brak{e^t u(t)} = \frac{1}{s-1} \label{eq:second} \text{ for } Re(s) > 1  
 		\end{align}
 \end{itemize}
 
