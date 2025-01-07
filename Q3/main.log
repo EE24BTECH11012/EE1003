@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.1.3)  7 JAN 2025 22:39
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.1.3)  7 JAN 2025 22:43
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1921,7 +1921,7 @@ dist/fonts/enc/dvips/base/8r.enc}
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [2]
-<figs/fig.png, id=80, 462.528pt x 346.896pt>
+<figs/fig.png, id=79, 462.528pt x 346.896pt>
 File: figs/fig.png Graphic file (type png)
 <use figs/fig.png>
 Package pdftex.def Info: figs/fig.png  used on input line 142.
@@ -1949,10 +1949,10 @@ exmf-dist/fonts/type1/public/txfonts/txex.pfb></usr/share/texlive/texmf-dist/fo
 nts/type1/public/txfonts/txsy.pfb></usr/share/texlive/texmf-dist/fonts/type1/ur
 w/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.
 pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (3 pages, 78528 bytes).
+Output written on main.pdf (3 pages, 78499 bytes).
 PDF statistics:
- 136 PDF objects out of 1000 (max. 8388607)
- 98 compressed objects within 1 object stream
+ 135 PDF objects out of 1000 (max. 8388607)
+ 97 compressed objects within 1 object stream
  41 named destinations out of 1000 (max. 500000)
  114 words of extra memory for PDF output out of 10000 (max. 10000000)
 
