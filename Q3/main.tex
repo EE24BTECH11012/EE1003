@@ -63,19 +63,37 @@ Find the area bounded by the curves $\cbrak{\brak{x,y} : y \geq x^2  \text{ and 
 \textbf{Theoritical} : \\
 \begin{enumerate}
 	\item \textbf{FINDING THE POINT OF INTERSECTION} : \\
+		General equation of a conic can be expressed as
 		\begin{align}
-			y &= x^2 \\
-			y &= \abs{x}
+			g(x) : \vec{x}^T\vec{v}\vec{x} + 2\vec{u}^T\vec{x} + f &= 0 \label{eq:conic}
 		\end{align}
-		By the symmetry of the equations, the required area is double the area of 
+		The given curve can be expressed as a conic with formula
 		\begin{align}
-			y &= x^2 \text{ for } x \geq 0 \\
-			y &= x \text{ for } x \geq 0 
+			\vec{V} &= \myvec{ 1 & 0 \\ 0 & 0 } \\
+			\vec{u} &= \myvec{ 0 \\ \frac{-1}{2} } \\
+			f &= 0
 		\end{align}
-		Clearly, the points of intersection are 
+		General equation of a line can be expressed as
 		\begin{align}
-			x &= 0 \\
-			x &= 1 
+			L : \vec{x} &= \vec{h} + k\vec{m} \label{eq:line}
+		\end{align}
+		The given line equation can be written as
+		\begin{align}
+			\vec{h} &= \myvec{0 \\ 0} \\
+			\vec{m} &= \myvec{1 \\ 1}
+		\end{align}
+		Point of intersection of a line \eqref{eq:line} with a conic \eqref{eq:conic} is given by
+		\begin{align}
+			\vec{x}_{i} &= \vec{h} + k_{i} \vec{m} \label{eq:subs}
+		\end{align}
+		where, 
+		\begin{align}
+			k_i &= \frac{1}{\vec{m}^T\vec{v}\vec{m}} \brak{ -\vec{m}^T \brak{\vec{V}\vec{h} + \vec{u}} \pm \sqrt{ \brak{\vec{V}\vec{h} + \vec{u}}^2 - g(\vec{h}) \brak{\vec{m}^T\vec{v}\vec{m}}}} 
+		\end{align}
+		Substituting the given parameters in \eqref{eq:subs}, we have
+		\begin{align}
+			\vec{x}_1 &= \myvec{ 0 \\ 0 } \\
+			\vec{x}_2 &= \myvec{ 1 \\ 1 } 
 		\end{align}
 	\item \textbf{EVALUATING THE INTEGRAL } : \\
 	From the graph, it can be seen that 
