@@ -1,0 +1,129 @@
+\let\negmedspace\undefined
+\let\negthickspace\undefined
+\documentclass[journal]{IEEEtran}
+\usepackage[a5paper, margin=10mm, onecolumn]{geometry}
+%\usepackage{lmodern} % Ensure lmodern is loaded for pdflatex
+\usepackage{tfrupee} % Include tfrupee package
+
+\setlength{\headheight}{1cm} % Set the height of the header box
+\setlength{\headsep}{0mm}     % Set the distance between the header box and the top of the text
+
+\usepackage{gvv-book}
+\usepackage{gvv}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{txfonts}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{gensymb}
+\usepackage{comment}
+\usepackage[breaklinks=true]{hyperref}
+\usepackage{tkz-euclide} 
+\usepackage{listings}
+% \usepackage{gvv}                                        
+\def\inputGnumericTable{}                                 
+\usepackage[latin1]{inputenc}                                
+\usepackage{color}                                            
+\usepackage{array}                                            
+\usepackage{longtable}                                       
+\usepackage{calc}                                             
+\usepackage{multirow}                                         
+\usepackage{hhline}                                           
+\usepackage{ifthen}                                           
+\usepackage{lscape}
+\begin{document}
+
+\bibliographystyle{IEEEtran}
+\vspace{3cm}
+
+\title{9.4.12}
+\author{EE24BTECH11012 - Bhavanisankar G S}
+% \maketitle
+% \newpage
+% \bigskip
+{\let\newpage\relax\maketitle}
+
+\renewcommand{\thefigure}{\theenumi}
+\renewcommand{\thetable}{\theenumi}
+\setlength{\intextsep}{10pt} % Space between text and floats
+
+
+\numberwithin{equation}{enumi}
+\numberwithin{figure}{enumi}
+\renewcommand{\thetable}{\theenumi}
+
+\textbf{QUESTION} : \\
+For the differential equation, $x (x^2 - 1) \frac{dy}{dx} = 1$, find the particular solution given that $y(2) = 0$. \\
+\textbf{SOLUTION} : \\
+\textbf{Theoritical} : \\
+Consider the given equation, 
+\begin{align}
+	x \brak{x^2 - 1} \frac{dy}{dx} &= 1 \\
+	\frac{dy}{dx} &= \frac{1}{x \brak{x^2 -1}} \label{eq:de} \\
+	y(2) &= 0 \label{eq:ic}
+\end{align}
+By the method of \textbf{Partial fractions}, we have \\
+\begin{align}
+	\frac{dy}{dx} &= \frac{1}{2} \brak{\frac{1}{x-1}} + \frac{1}{2} \brak{\frac{1}{x+1}} - \frac{1}{x} \label{eq:int}
+\end{align}
+Integrating \eqref{eq:int} on both the sides, we have
+\begin{align}
+	\int dy &= \int \brak{\frac{1}{2} \brak{\frac{1}{x-1}} + \frac{1}{2} \brak{\frac{1}{x+1}} - \frac{1}{x}} dx \\
+	y &= \frac{1}{2} \log{\abs{x-1}} + \frac{1}{2} \log{\abs{x+1}} - \log{\abs{x}} + \log{c} \\
+	y &= \log \brak{\frac{c\sqrt{x^2 - 1}}{x}}
+\end{align}
+Substituting the initial conditions in \eqref{eq:ic}, we have
+\begin{align}
+	0 &= \log \brak{\frac{c\sqrt{2^2 - 1}}{2}} \\
+	c &= \frac{2}{\sqrt{3}}
+\end{align}
+Hence, the required particular solution becomes
+\begin{align}
+	y &= \log \brak{\frac{2\sqrt{x^2 - 1}}{\sqrt{3} x}} 
+\end{align}
+\\ \\
+\textbf{Simulation} : 
+\begin{enumerate}
+\item For a general interval, say $\sbrak{a,b}$, split up the intervals into $n$ parts such that
+\begin{align}
+	h &= \frac{b-a}{n} \label{eq:split}
+\end{align}
+\item Consider the points 
+\begin{align}
+	x_{0} &= a \\
+	x_{n} &= b \\
+	x_{i+1} &= x_{i} + h
+\end{align}
+\item \textbf{Trapezoid rule} : \\
+Summing the areas of the trapezoids formed, we have
+\begin{align}
+	f(x) &= \frac{1}{x \brak{x^2 - 1}} \\
+	A &\approx \frac{h}{2} \brak{(f(x_{0}) + f(x_{1})) + (f(x_{1}) + f(x_{2})) + \dots + (f(x_{n-1}) + f(x_{n}))} \\
+	A &\approx \frac{h}{2} \brak{f(x_{0}) + 2 \sum_{i=1}^{n-1} f(x_{i}) + f(x_{n}) } \label{eq:dif}
+\end{align}
+\item To set up the difference equation, we integrate the equation \eqref{eq:de} from $n-1$ to $n$.
+	\begin{align}
+		a &= n-1 \\
+		b &= n
+	\end{align}
+		On further simplifying the equation \eqref{eq:dif}, we have
+		\begin{align}
+			y_{n+1} - y_{n} &= \brak{x_{n+1} - x_{n}} \brak{\frac{f(x_{n})}{2} + \frac{f(x_{n+1})}{2}} \\
+			y_{n+1} &= y_{n} + \brak{x_{n+1} - x_{n}} \brak{\frac{f(x_{n})}{2} + \frac{f(x_{n+1})}{2}} \\
+			y_{n+1} &= y_{n} + \frac{\brak{x_{n+1} - x_{n}}}{2} \brak{\frac{1}{x_{n}(x_{n}^2 - 1)} + \frac{1}{x_{n+1}(x_{n+1}^2 - 1)}} \label{eq:difeq} 
+		\end{align}
+		which is th required difference equation.
+	\item Taking $x_0 = 2$ and $y_0 = 0$ and iterating \eqref{eq:difeq}, we can obtain the other points. The theoritical and simulation graph are shown below.
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=\columnwidth]{figs/fig.png}
+			\caption{Plot of the given question.}
+			\label{fig:Plot1} 
+		\end{figure}
+\end{enumerate}
+\end{document}
