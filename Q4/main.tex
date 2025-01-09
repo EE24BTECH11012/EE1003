@@ -115,10 +115,59 @@ Summing the areas of the trapezoids formed, we have
 		\begin{align}
 			y_{n+1} - y_{n} &= \brak{x_{n+1} - x_{n}} \brak{\frac{f(x_{n})}{2} + \frac{f(x_{n+1})}{2}} \\
 			y_{n+1} &= y_{n} + \brak{x_{n+1} - x_{n}} \brak{\frac{f(x_{n})}{2} + \frac{f(x_{n+1})}{2}} \\
-			y_{n+1} &= y_{n} + \frac{\brak{x_{n+1} - x_{n}}}{2} \brak{\frac{1}{x_{n}(x_{n}^2 - 1)} + \frac{1}{x_{n+1}(x_{n+1}^2 - 1)}} \label{eq:difeq} 
+			y_{n+1} &= y_{n} + \frac{\brak{x_{n+1} - x_{n}}}{2} \brak{\frac{1}{x_{n}(x_{n}^2 - 1)} + \frac{1}{x_{n+1}(x_{n+1}^2 - 1)}} \label{eq:difeq1} 
 		\end{align}
-		which is th required difference equation.
-	\item Taking $x_0 = 2$ and $y_0 = 0$ and iterating \eqref{eq:difeq}, we can obtain the other points. The theoritical and simulation graph are shown below.
+		which is the required difference equation.
+	\item Taking $x_0 = 2$ and $y_0 = 0$ and iterating \eqref{eq:difeq1}, we can obtain the other points.\\
+
+\textbf{Another approach} : \\
+Consider \eqref{eq:de}. Let the Laplace transform of RHS be $X(s)$. Then, 
+\begin{align}
+	g(t) &= \frac{1}{t(t^2 - 1)} \\
+	\frac{dy}{dt} &= g(t) \label{eq:1}
+\end{align}
+Applying Laplace transform on both the sides of \eqref{eq:1} , we have 
+\begin{align}
+	s Y(s) &= X(s) 
+\end{align}
+The transfer function, $H(s)$ can then be defined as
+\begin{align}
+	H(s) &= \frac{Y(s)}{X(s)} \\
+	H(s) &= \frac{1}{s} \label{eq:bil}
+\end{align}
+Applying \textbf{Bi-linear transform} on both sides of \eqref{eq:bil}, i.e., converting $s$-domain into $z$-domain, we have
+\begin{align}
+	s &= \frac{2}{h} \brak{\frac{1 - z^{-1}}{1 + z^{-1}}} \\
+	H(z) &= \frac{h}{2} \brak{\frac{1 + z^{-1}}{1 - z^{-1}}} \\
+	Y(z) &= \frac{h}{2} \brak{\frac{1 + z^{-1}}{1 - z^{-1}}} X(z) \\
+	\brak{1 - z^{-1}} Y(z) &= \frac{h}{2} \brak{1 + z^{-1}} X(z) \label{eq:iz} 
+\end{align}
+Taking \textbf{Inverse z-transform} on both the sides of \eqref{eq:iz} , we have
+\begin{align}
+	y_{n} - y_{n-1} &= \frac{h}{2} \brak{g(x_{n}) + g(x_{n-1})} \\
+	y_{n} &= y_{n-1} + \frac{h}{2} \brak{g(x_{n}) + g(x_{n-1})} \label{eq:difeq2}
+\end{align}
+which is the required difference equation. \\
+It can be seen that \eqref{eq:difeq1} and \eqref{eq:difeq2} are essentially the same. \\
+\textbf{Using RK method} : \\
+By the method of \textbf{Finite differences}, we have \\
+\begin{align}
+	y(x + h) &= y(x) + y^{\prime}(x,y) h \label{eq:fd}
+\end{align}
+According to the RK method, \eqref{eq:fd} can be written as
+\begin{align}
+	y(x_0 + h) &= y(x_0) + \frac{1}{6} \brak{k_1 + 2k_2 + 2k_3 + k_4} \label{eq:rk}
+\end{align}
+where, 
+\begin{align}
+	k_1 &= h y^{\prime} \brak{x_0, y_0} \\
+	k_2 &= h y^{\prime} \brak{x_0 + \frac{h}{2}, y_0 + \frac{k_1}{2}} \\
+	k_3 &= h y^{\prime} \brak{x_0 + \frac{h}{2}, y_0 + \frac{k_2}{2}} \\
+	k_4 &= h y^{\prime} \brak{x_0 + h, y_0 + k_3}
+\end{align}
+Iterating \eqref{eq:rk}, a graph can be plotted. \\
+Theoritical and simulation graphs of the methods described above are plotted below.
+
 		\begin{figure}[h]
 			\centering
 			\includegraphics[width=\columnwidth]{figs/fig.png}
