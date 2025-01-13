@@ -21,7 +21,7 @@ end = 3.0
 h = 0.001
 
 x0 = 1
-alpha = 0.01
+alpha = 0.001
 
 # Correct number of points
 num_points = int((end - start) / h)
