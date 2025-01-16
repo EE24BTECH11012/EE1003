@@ -12,10 +12,17 @@
 \frame{\titlepage}
 
 \begin{frame}
+\frametitle{Table Of Contents}
+\tableofcontents
+\end{frame}
+
+\section{Problem statement}
+\begin{frame}
 \frametitle{Question}
 \textbf{Find the absolute maximum and minimum value of the function} $f(x) = x^3$ \textbf{in the interval} $[-2, 2]$.
 \end{frame}
 
+\section{Theoritical solution}
 \begin{frame}
 \frametitle{Theoretical Solution}
 Given function: $y(x) = x^3$ \\[0.2cm]
@@ -27,16 +34,18 @@ Edge values: $y(-2) = -8$, $y(0) = 0$, $y(2) = 8$ \\[0.2cm]
 \textbf{Absolute Minimum:} $-8$ at $x=-2$
 \end{frame}
 
+\section{Computational solution}
 \begin{frame}
 \frametitle{Computational Solution}
 Using Gradient Ascent and Descent: \\[0.2cm]
-Gradient Ascent: $x_{n+1} = x_n + \alpha f'(x_n) = x_n + 3\alpha x_n^2$ \\[0.2cm]
-Gradient Descent: $x_{n+1} = x_n - \alpha f'(x_n) = x_n - 3\alpha x_n^2$ \\[0.2cm]
+Gradient Ascent ( to find maxima ) : $x_{n+1} = x_n + \alpha f'(x_n) = x_n + 3\alpha x_n^2$ \\[0.2cm]
+Gradient Descent ( to find minima ) : $x_{n+1} = x_n - \alpha f'(x_n) = x_n - 3\alpha x_n^2$ \\[0.2cm]
 With $\alpha = 0.01$: \\
 $x_{\text{min}} = -2$, $y_{\text{min}} = -8$ \\
 $x_{\text{max}} = 2$, $y_{\text{max}} = 8$
 \end{frame}
 
+\section{Plot}
 \begin{frame}
 \frametitle{Graphical Representation}
 \begin{center}

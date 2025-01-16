@@ -1,0 +1,7 @@
+\beamer@sectionintoc {1}{Problem statement}{3}{0}{1}
+\beamer@sectionintoc {2}{Theoritical solution}{4}{0}{2}
+\beamer@sectionintoc {3}{Trapezoidal rule}{6}{0}{3}
+\beamer@sectionintoc {4}{Laplace transform}{8}{0}{4}
+\beamer@sectionintoc {5}{Bilinear transform}{9}{0}{5}
+\beamer@sectionintoc {6}{RK method}{10}{0}{6}
+\beamer@sectionintoc {7}{Figure}{11}{0}{7}

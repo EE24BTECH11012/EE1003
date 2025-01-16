@@ -11,11 +11,19 @@
 
 \frame{\titlepage}
 
+
+\begin{frame}
+\frametitle{Table of Contents}
+\tableofcontents
+\end{frame}
+
+\section{Problem statement}
 \begin{frame}
 \frametitle{Question}
 \textbf{Show that the function} $f(x) = \frac{\log{x}}{x}$ \textbf{has a maximum at} $x = e$.
 \end{frame}
 
+\section{Theoritical solution}
 \begin{frame}
 \frametitle{Theoretical Solution}
 Given function: $y(x) = \frac{\log{x}}{x}$ \\[0.2cm]
@@ -25,6 +33,7 @@ Critical points: Solve $y'(x) = 0 \Rightarrow x = e$ \\[0.2cm]
 Double derivative test: $y''(e) = \frac{-1}{e^3} < 0 \Rightarrow$ Maximum at $x = e$
 \end{frame}
 
+\section{Computational solution}
 \begin{frame}
 \frametitle{Computational Solution}
 Using Gradient Ascent: \\[0.2cm]
@@ -35,6 +44,7 @@ $x_{\text{max}} = 2.717779896744937$ \\
 $y_{\text{max}} = 0.36787943489794817$
 \end{frame}
 
+\section{Plot}
 \begin{frame}
 \frametitle{Graphical Representation}
 \begin{center}

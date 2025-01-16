@@ -1,5 +1,9 @@
 \documentclass{beamer}
 \usepackage{amsmath}
+\usepackage{enumitem}
+\setbeamertemplate{section in toc}{\leavevmode\leftskip=2ex$\bullet$~\inserttocsection}
+\setbeamertemplate{subsection in toc}{\leavevmode\leftskip=4ex--~\inserttocsubsection}
+
 
 \title{Solution to Differential Equation}
 \subtitle{EE24BTECH11012 - Bhavanisankar G S}
@@ -10,60 +14,61 @@
 \frame{\titlepage}
 
 \begin{frame}
+\frametitle{Table Of Contents}
+\tableofcontents
+\end{frame}
+
+\section{Problem statement}
+\begin{frame}
 \frametitle{Problem Statement}
 For the differential equation \( x(x^2 - 1) \frac{dy}{dx} = 1 \), find the particular solution given \( y(2) = 0 \).
 \end{frame}
 
+\section{Theoritical solution}
 \begin{frame}
-\frametitle{Theoretical Solution - 1}
+\frametitle{Theoretical Solution }	
 \[
-\frac{dy}{dx} = \frac{1}{x(x^2 - 1)}
+\frac{dy}{dx} &= \frac{1}{x(x^2 - 1)}
 \]
 Using partial fractions:
 \[
-\frac{dy}{dx} = \frac{1}{2} \left(\frac{1}{x-1} + \frac{1}{x+1}\right) - \frac{1}{x}
+\frac{dy}{dx} &= \frac{1}{2} \left(\frac{1}{x-1} + \frac{1}{x+1}\right) - \frac{1}{x} \label{eq:dif}
 \]
-\end{frame}
-
-\begin{frame}
-\frametitle{Theoretical Solution - 2}
 Integrating both sides:
 \[
-y = \frac{1}{2} \log |x - 1| + \frac{1}{2} \log |x + 1| - \log |x| + \log c
+ y &= \frac{1}{2} \log |x - 1| + \frac{1}{2} \log |x + 1| - \log |x| + \log c
 \]
+%\end{align}
 \end{frame}
 
 \begin{frame}
-\frametitle{Applying Initial Condition}
+\frametitle{Continued}
 Substituting \( y(2) = 0 \):
 \[
-0 = \log \left( c \sqrt{\frac{3}{4}} \right)
+0 &= \log \left( c \sqrt{\frac{3}{4}} \right)
 \]
 Solving for \( c \):
 \[
-c = 2\sqrt{3}
+c &= 2\sqrt{3}
 \]
-\end{frame}
-
-\begin{frame}
-\frametitle{Particular Solution}
 The particular solution becomes:
 \[
-y = \log \left( 2\sqrt{\frac{x^2 - 1}{3x}} \right)
+y &= \log \left( 2\sqrt{\frac{x^2 - 1}{3x}} \right)
 \]
 \end{frame}
 
+\section{Trapezoidal rule}
 \begin{frame}
 \frametitle{Simulation - Trapezoid Rule}
-For a general interval, say \(\sbrak{a,b}\), split up the intervals into \(n\) parts such that
+For a general interval, say \(\left[ {a,b} \right] \), split up the intervals into \(n\) parts such that
 \begin{align}
-	h &= \frac{b-a}{n}
+    h &= \frac{b-a}{n}
 \end{align}
 Consider the points:
 \begin{align}
-	x_{0} &= a \\
-	x_{n} &= b \\
-	x_{i+1} &= x_{i} + h
+    x_{0} &= a \\
+    x_{n} &= b \\
+    x_{i+1} &= x_{i} + h
 \end{align}
 \end{frame}
 
@@ -71,52 +76,55 @@ Consider the points:
 \frametitle{Difference Equation}
 Deriving the difference equation:
 \begin{align}
-	f(x) &= \frac{1}{x \left( {x^2 - 1}} \right) \\
-	A &\approx \frac{h}{2} \left( {(f(x_{0}) + f(x_{1})) + (f(x_{1}) + f(x_{2})) + \dots + (f(x_{n-1}) + f(x_{n}))} \right) \\
-	A &\approx \frac{h}{2} \left( {f(x_{0}) + 2 \sum_{i=1}^{n-1} f(x_{i}) + f(x_{n}) } \right)
+    f(x) &= \frac{1}{x \left( {x^2 - 1}} \right) \\
+    A &\approx \frac{h}{2} \left( {(f(x_{0}) + f(x_{1})) + (f(x_{1}) + f(x_{2})) + \dots + (f(x_{n-1}) + f(x_{n}))} \right) \\
+    A &\approx \frac{h}{2} \left( {f(x_{0}) + 2 \sum_{i=1}^{n-1} f(x_{i}) + f(x_{n}) } \right)
 \end{align}
-On further simplifying, we have
+By integrating the differential equation from $n-1$ to $n$, we have
 \begin{align}
-	y_{n+1} - y_{n} &= \left( {x_{n+1} - x_{n}}  \right) \left( {\frac{f(x_{n})}{2} + \frac{f(x_{n+1}) }{2}} \right) \\
-	y_{n+1} &= y_{n} + \left( {x_{n+1} - x_{n}}  \right)\left( {\frac{f(x_{n})}{2} + \frac{f(x_{n+1})}{2} \right) } \\
-	y_{n+1} &= y_{n} + \frac{\left( {x_{n+1} - x_{n}}}{2} \right) \left({\frac{1}{x_{n}(x_{n}^2 - 1)} + \frac{1}{x_{n+1}(x_{n+1}^2 - 1) } \right)}
+    y_{n+1} - y_{n} &= \left( {x_{n+1} - x_{n}}  \right) \left( {\frac{f(x_{n})}{2} + \frac{f(x_{n+1}) }{2}} \right) \\
+    y_{n+1} &= y_{n} + \left( {x_{n+1} - x_{n}}  \right)\left( {\frac{f(x_{n})}{2} + \frac{f(x_{n+1})}{2} \right) } \\
+    y_{n+1} &= y_{n} + \frac{\left( {x_{n+1} - x_{n}} \right) }{2} \left({\frac{1}{x_{n}(x_{n}^2 - 1)} + \frac{1}{x_{n+1}(x_{n+1}^2 - 1) } \right)}
 \end{align}
 which is the required difference equation.
 \end{frame}
 
+\section{Laplace transform}
 \begin{frame}
 \frametitle{Laplace Transform Approach}
 \begin{align}
-	g(t) &= \frac{1}{t(t^2 - 1)} \\
-	\frac{dy}{dt} &= g(t) \\
-	s Y(s) &= X(s) \\
-	H(s) &= \frac{Y(s)}{X(s)} \\
-	H(s) &= \frac{1}{s}
+    g(t) &= \frac{1}{t(t^2 - 1)} \\
+    \frac{dy}{dt} &= g(t) \\
+    s Y(s) &= X(s) \\
+    H(s) &= \frac{Y(s)}{X(s)} \\
+    H(s) &= \frac{1}{s}
 \end{align}
 \end{frame}
 
+\section{Bilinear transform}
 \begin{frame}
 \frametitle{Bilinear Transform}
 \begin{align}
-	s &= \frac{2}{h} \left( {\frac{1 - z^{-1}}{1 + z^{-1}}} \right)  \\
-	H(z) &= \frac{h}{2} \left( {\frac{1 + z^{-1}}{1 - z^{-1}}} \right) \\
-	Y(z) &= \frac{h}{2} \left( {\frac{1 + z^{-1}}{1 - z^{-1}}} \right) X(z) , |z| > 1\\
-	\left( {1 - z^{-1}} \right) Y(z) &= \frac{h}{2} \left( \brak{1 + z^{-1}} \right) X(z) 
+    s &= \frac{2}{h} \left( {\frac{1 - z^{-1}}{1 + z^{-1}}} \right)  \\
+    H(z) &= \frac{h}{2} \left( {\frac{1 + z^{-1}}{1 - z^{-1}}} \right) \\
+    Y(z) &= \frac{h}{2} \left( {\frac{1 + z^{-1}}{1 - z^{-1}}} \right) X(z) , |z| > 1\\
+    \left( {1 - z^{-1}} \right) Y(z) &= \frac{h}{2} \left( \brak{1 + z^{-1}} \right) X(z) 
 \end{align}
 Taking inverse \(z\)-transform on both sides, we have
 \begin{align}
-	y_{n} - y_{n-1} &= \frac{h}{2} \left( {g(x_{n}) + g(x_{n-1})} \right) \\
-	y_{n} &= y_{n-1} + \frac{h}{2} \left( {g(x_{n}) + g(x_{n-1})} \right)
+    y_{n} - y_{n-1} &= \frac{h}{2} \left( {g(x_{n}) + g(x_{n-1})} \right) \\
+    y_{n} &= y_{n-1} + \frac{h}{2} \left( {g(x_{n}) + g(x_{n-1})} \right)
 \end{align}
 \end{frame}
 
+\section{RK method}
 \begin{frame}
 \frametitle{Runge-Kutta Method}
 \begin{align}
-	y(x + h) &= y(x) + y^{\prime}(x,y) h \\
-	y^{\prime} (x,y) &= \frac{1}{x \left( {x^2 - 1} \right)} \\
-	y(x_0 + h) &= y(x_0) + \frac{1}{6} \left( {k_1 + 2k_2 + 2k_3 + k_4} \right)
-\end{align}
+    y(x + h) &= y(x) + y^{\prime}(x,y) h \\
+    y^{\prime} (x,y) &= \frac{1}{x \left( {x^2 - 1} \right)} \\
+    y(x_0 + h) &= y(x_0) + \frac{1}{6} \left( {k_1 + 2k_2 + 2k_3 + k_4} \right)
+    \end{align}
 where,
 \begin{align}
 	k_1 &= h y^{\prime} ({x_0, y_0}) \\
@@ -126,13 +134,13 @@ where,
 \end{align}
 \end{frame}
 
+\section{Figure}
 \begin{frame}
 \frametitle{Graphical Representation}
 \begin{figure}[h]
-	\centering
-	\includegraphics[width=\columnwidth]{fig.png}
-	\caption{Plot of the given question.}
-	\label{fig:Plot1}
+    \centering
+    \includegraphics[width=\columnwidth]{fig.png}
+    \caption{Plot of the given question.}
 \end{figure}
 \end{frame}
 

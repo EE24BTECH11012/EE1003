@@ -1,0 +1,4 @@
+\beamer@sectionintoc {1}{Problem statement}{3}{0}{1}
+\beamer@sectionintoc {2}{Theoritical solution}{4}{0}{2}
+\beamer@sectionintoc {3}{Computational solution}{5}{0}{3}
+\beamer@sectionintoc {4}{Plot}{6}{0}{4}
