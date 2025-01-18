@@ -92,7 +92,42 @@ Then the system of equations can be solved as
 	\implies \vec{L} \vec{y} &= \vec{B} \label{eq:lu1} \\
 	\vec{U} \vec{x} &= \vec{y} \label{eq:lu2}
 \end{align}
-The matrix $\vec{U}$ can be calculated by \textbf{Row-reduction}.
+\textbf{Algorithm} : \\
+\begin{enumerate}
+	\item Let $\vec{A}$ be an $n \times n$ matrix. Initialize $\vec{L}$ to an $n \times n$ Identity matrix. Initialize $\vec{U}$ to a zero matrix.
+	\begin{align}
+		L &= \myvec{1 & 0 & \cdots & 0 \\
+		            0 & 1 & \cdots & 0 \\
+		            \vdots & \vdots & \ddots & \vdots \\
+		            0 & 0 & \cdots & 1} \\
+		U &= \myvec{0 & 0 & \cdots & 0 \\
+			    0 & 0 & \cdots & 0 \\
+                            \vdots & \vdots & \ddots & \vdots \\
+                            0 & 0 & \cdots & 0}
+	\end{align}
+	\item For each row $i$ from $0$ to $n-1$ :
+	\begin{enumerate}
+		\item For each column $j$ from $i$ to $n-1$ : 
+		\begin{align}
+			U_{ij} &= A_{ij} - \sum_{k=0}^{i-1} L_{ik} U_{kj}
+		\end{align}
+		\item For each row $j$ from $i+1$ to $n-1$ :
+		\begin{align}
+			L_{ji} &= \frac{1}{U_{ii}} \brak{A_{ij} - \sum_{k=0}^{i-1} L_{jk} U_{ki}}
+		\end{align}
+	\end{enumerate}
+	\item Repeat the above step for all $i = 0,1,\dots,n-1$
+	\item After all the iterations
+	\begin{align}
+		\vec{A} &= \vec{L} \vec{U}
+	\end{align}
+\end{enumerate}
+It can be seen that
+\begin{align}
+	\vec{L} &= \myvec{1 & 0 \\ 2 & 1} \\
+	\vec{U} &= \myvec{1 & 1 \\ 0 & 0}
+\end{align}
+The matrix $\vec{U}$ can also be calculated by \textbf{Row-reduction}.
 \begin{align}
 	\myvec{1 & 1 \\ 2 & 2} &\xrightarrow{R_{2} \rightarrow R_{2} - 2R_{1}} \myvec{1 & 1 \\ 0 & 0} \\
 	\implies \vec{U} &= \myvec{1 & 1 \\ 0 & 0}
