@@ -36,6 +36,9 @@
 \usepackage{hhline}                                           
 \usepackage{ifthen}                                           
 \usepackage{lscape}
+
+\newcommand{\nCr}[2]{\,^{#1}C_{#2}}
+
 \begin{document}
 
 \bibliographystyle{IEEEtran}
@@ -61,10 +64,68 @@
 Three coins are tossed once. Find the probability of getting no head.\\
 \textbf{SOLUTION} : \\
 
+\input{tables/table1.tex} \\
+Considering all the outcomes as equally likely, we have
+\begin{align}
+	p &= \frac{1}{2} \\
+	q &= \frac{1}{2}
+\end{align}
+For the given question, let $\vec{X}$ denote the number of heads. The sample space corresponding to the given scenario is tabulated below. \\
+\input{tables/table2.tex}
+The \textbf{Probability Mass Function} is given by-
+\begin{align}
+	p_{\vec{X}} (k) &= \nCr{n}{k} p^{k} q^{n-k} \\ 
+	p_{\vec{X}} (k) &= \nCr{3}{k} \brak{\frac{1}{2}}^k \brak{\frac{1}{2}}^{n-k}
+\end{align}
+
+\[
+\implies p_{\vec{X}} (k) = 
+\begin{cases}
+	\frac{\nCr{3}{k}}{8} & k = \cbrak{0,1,2,3} \\
+	0 & otherwise
+\end{cases}
+\]
+
+\[
+\implies p_{\vec{X}} (k) = 
+\begin{cases}
+	\frac{1}{8} & k = 0 \\
+	\frac{3}{8} & k = 1 \\
+	\frac{3}{8} & k = 2 \\
+	\frac{1}{8} & k = 3
+\end{cases}
+\]
+
+The corresponding \textbf{Cumulative Distribution Function} can then be written as - 
+\begin{align}
+	F_{\vec{X}}(k) &= Pr(\vec{X} \leq k) \\
+		       &= \sum_{k=0}^{k} p_{\vec{X}} (x) 
+\end{align}
+
+
+\[
+\implies F_{\vec{X}}(k) = Pr(\vec{X} \leq k) =
+\begin{cases}
+    0 & x < 0 \\
+    \frac{1}{8} & 0 \leq x < 1 \\
+    \frac{1}{2} & 1 \leq x < 2 \\
+    \frac{7}{8} & 2 \leq x < 3 \\
+    1 & x \geq 3
+\end{cases}
+\]
+\begin{align}
+	F_{\vec{X}} \brak{0} &= P \brak{ \vec{X} <= 0 } \\
+	                     &= \frac{1}{8}
+\end{align}
 \begin{figure}[h]
 \centering
-\includegraphics[width=\columnwidth]{figs/fig.png}
-\caption{Plot of the given question.}
+\includegraphics[width=\columnwidth]{figs/fig1.png}
+\label{fig:Plot1} 
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{figs/fig2.png}
 \label{fig:Plot1} 
 \end{figure}
 \end{document}
