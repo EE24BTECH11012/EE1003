@@ -26,8 +26,8 @@ y = np.array([cdf(i) for i in x])  # Corrected function call
 
 # Plotting the CDF
 plt.plot(x, y, color='red', linestyle='-', label='CDF')
-plt.xlabel('X-AXIS')
-plt.ylabel('Y-AXIS')
+plt.xlabel('Random variable')
+plt.ylabel('Probability')
 plt.grid()
 plt.savefig('../figs/plot2.png')
 plt.legend()

@@ -19,9 +19,10 @@ y = [pmf(i) for i in x]
 x = np.array(x)
 y = np.array(y)
 
+plt.ylim(-0.01,1)
 plt.stem(x, y, basefmt=" ", linefmt='b-', markerfmt='bo', use_line_collection=True)
-plt.xlabel('X-AXIS')
-plt.ylabel('Y-AXIS')
+plt.xlabel('Random variable')
+plt.ylabel('Probability')
 plt.grid()
 plt.savefig('../figs/fig1.png')
 plt.show()

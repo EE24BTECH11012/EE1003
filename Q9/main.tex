@@ -64,37 +64,58 @@
 Three coins are tossed once. Find the probability of getting no head.\\
 \textbf{SOLUTION} : \\
 
-\input{tables/table1.tex} \\
+\input{tables/table1.tex}
+Let us assume the random variable to be the sum of three Bernoulli Random Variables.
+\begin{align}
+	\vec{X} &= \vec{X_{1}} + \vec{X_{2}} + \vec{X_{3}} \\
+	\vec{X_{i}} &= 
+	\begin{cases}
+		1 & , \text{ Outcome - head } \\
+		0 & , \text{ Outcome - tail }
+	\end{cases} \\
+	\implies p_{X_{i}} (k) &= 
+	\begin{cases}
+		1 - p & , k = 0 \\
+		p & , k = 1
+	\end{cases}
+\end{align}
 Considering all the outcomes as equally likely, we have
 \begin{align}
-	p &= \frac{1}{2} \\
-	q &= \frac{1}{2}
+	p &= \frac{1}{2} \label{eq:p}
 \end{align}
 For the given question, let $\vec{X}$ denote the number of heads. The sample space corresponding to the given scenario is tabulated below. \\
 \input{tables/table2.tex}
-The \textbf{Probability Mass Function} is given by-
+By the properties of Z-transform of \textbf{Probability Mass Function}, we have
 \begin{align}
-	p_{\vec{X}} (k) &= \nCr{n}{k} p^{k} q^{n-k} \\ 
-	p_{\vec{X}} (k) &= \nCr{3}{k} \brak{\frac{1}{2}}^k \brak{\frac{1}{2}}^{n-k}
+	M_{\vec{X}} (z) &= M_{\vec{X_{1}}} (z) M_{\vec{X_{2}}} (z) M_{\vec{X_{3}}} (z) \\
+	M_{\vec{X_{1}}} &= \sum_{n \to - \infty}^{\infty} p_{\vec{X_{1}}} (n) z^{-n} = p + \brak{1-p}z^{-1} \\
+	M_{\vec{X_{2}}} &= \sum_{n \to - \infty}^{\infty} p_{\vec{X_{2}}} (n) z^{-n} = p + \brak{1-p}z^{-1} \\
+	M_{\vec{X_{3}}} &= \sum_{n \to - \infty}^{\infty} p_{\vec{X_{3}}} (n) z^{-n} = p + \brak{1-p}z^{-1} \\
+	M_{\vec{X}} (z) &= \brak{p + \brak{1 - p}z^{-1}}^3 \\
+	                &= \sum_{k \to -\infty}^{\infty} \nCr{3}{k} p^{3-k} \brak{1-p}^{k} z^{-k} \\
+	p_{\vec{X}} (k) &= \nCr{3}{k} p^{3-k} \brak{1-p}^{k} \label{eq:pm}
+\end{align}
+Substituting \eqref{eq:p} in \eqref{eq:pm}, we have
+\begin{align}
+	p_{\vec{X}} (k) &= \frac{\nCr{3}{k}}{8} \label{eq:pmf}
 \end{align}
 
-\[
-\implies p_{\vec{X}} (k) = 
+The PMF is then given by - 
+\begin{align}
+p_{\vec{X}} (k) &= 
 \begin{cases}
-	\frac{\nCr{3}{k}}{8} & k = \cbrak{0,1,2,3} \\
+	\frac{\nCr{3}{k}}{8} & 0 \leq k \leq 3, k \in \mathbb{W} \\
 	0 & otherwise
-\end{cases}
-\]
-
-\[
-\implies p_{\vec{X}} (k) = 
+\end{cases} \\
+\implies p_{\vec{X}} (k) &= 
 \begin{cases}
 	\frac{1}{8} & k = 0 \\
 	\frac{3}{8} & k = 1 \\
 	\frac{3}{8} & k = 2 \\
-	\frac{1}{8} & k = 3
+	\frac{1}{8} & k = 3 \\
+	0 & \text{ otherwise }
 \end{cases}
-\]
+\end{align}
 
 The corresponding \textbf{Cumulative Distribution Function} can then be written as - 
 \begin{align}
@@ -103,7 +124,7 @@ The corresponding \textbf{Cumulative Distribution Function} can then be written 
 \end{align}
 
 
-\[
+\begin{align}
 \implies F_{\vec{X}}(k) = Pr(\vec{X} \leq k) =
 \begin{cases}
     0 & x < 0 \\
@@ -112,7 +133,7 @@ The corresponding \textbf{Cumulative Distribution Function} can then be written 
     \frac{7}{8} & 2 \leq x < 3 \\
     1 & x \geq 3
 \end{cases}
-\]
+\end{align}
 \begin{align}
 	F_{\vec{X}} \brak{0} &= P \brak{ \vec{X} <= 0 } \\
 	                     &= \frac{1}{8}
@@ -120,12 +141,21 @@ The corresponding \textbf{Cumulative Distribution Function} can then be written 
 \begin{figure}[h]
 \centering
 \includegraphics[width=\columnwidth]{figs/fig1.png}
+\caption{Probability Mass Funtion}
 \label{fig:Plot1} 
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\columnwidth]{figs/fig2.png}
+\includegraphics[width=\columnwidth]{figs/plot2.png}
+\caption{Cumulative Distribution Function}
+\label{fig:Plot1} 
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{figs/sim.png}
+\caption{Simulation}
 \label{fig:Plot1} 
 \end{figure}
 \end{document}
