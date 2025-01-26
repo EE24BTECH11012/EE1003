@@ -7,37 +7,62 @@ temp = ctypes.CDLL('./func.so')
 
 # Define function signatures for func.so
 temp.toss_coin.argtypes = None
+temp.factorial.argtypes = [ctypes.c_int]
+temp.factorial.restype = ctypes.c_int
+temp.pmf_sim.argtypes = [ctypes.c_int]
+temp.pmf_sim.restype = ctypes.c_double
+temp.pmf_theory.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_double]
+temp.pmf_theory.restype = ctypes.c_double
+temp.cdf_sim.argtypes = [ctypes.c_int]
+temp.cdf_sim.restype = ctypes.c_double
+temp.cdf_theory.argtypes = [ctypes.c_int, ctypes.c_double, ctypes.c_int]
+temp.cdf_theory.restype = ctypes.c_double
 
-temp.prob.argtypes = None
+n = 3
+p = 1/2
 
+x = np.array([0, 1, 2, 3])
+pmfsim_y = np.array([temp.pmf_sim(i) for i in x])
+pmftheory_y = np.array([temp.pmf_theory(n, i, p) for i in x])
+cdftheory_y = np.array([temp.cdf_theory(n,p,i) for i in x])
+cdfsim_y = np.array([temp.cdf_sim(i) for i in x])
 
-#temp.rand_gen()
-temp.prob()
-
-x = []
-y = []
-with open("values.dat", "r") as f:
-    for line in f:
-        parts = line.strip().split()
-        if len(parts) == 2:  # Ensure valid rows with 2 columns
-            x.append(float(parts[0]))
-            y.append(float(parts[1]))
-        else:
-            print(f"Skipping malformed line: {line.strip()}")
-
-x = np.array(x)
-y = np.array(y)
-
-xt = [i for i in range(10000)]
-yt = [1/8 for i in range(10000)]
-plt.ylim(0,1)
-plt.plot(x,y, label="Sim", lw=0.5)
-plt.plot(xt, yt, color='red', linestyle='-')
-plt.xlabel('No of iterations')
-plt.ylabel('Probability')
-plt.legend()
-plt.savefig('../figs/sim.png')
+#Plot PMF
+plt.figure(figsize=(8, 6))
+markerline, stemlines, baseline = plt.stem(x, pmftheory_y, label="theory")
+plt.setp(markerline, 'markerfacecolor', 'green')
+plt.setp(stemlines, 'color', 'blue')
+plt.setp(baseline, 'color', 'gray', 'linewidth', 1)
+markerline, stemlines, baseline = plt.stem(x, pmfsim_y, label="sim")
+plt.setp(markerline, 'markerfacecolor', 'red')
+plt.setp(stemlines, 'color', 'red')
+plt.setp(baseline, 'color', 'gray', 'linewidth', 1)
+plt.xlabel('x')
+plt.ylabel('$p_X(k)$')
+plt.legend(loc='best')
+plt.grid(True)
+plt.savefig("../figs/pmf.png")
 plt.show()
+
+#Plot CDF
+plt.figure(figsize=(8, 6))
+markerline, stemlines, baseline = plt.stem(x, cdftheory_y, label="theory")
+plt.setp(markerline, 'markerfacecolor', 'green')
+plt.setp(stemlines, 'color', 'blue')
+plt.setp(baseline, 'color', 'gray', 'linewidth', 1)
+markerline, stemlines, baseline = plt.stem(x, cdfsim_y, label="sim")
+plt.setp(markerline, 'markerfacecolor', 'red')
+plt.setp(stemlines, 'color', 'red')
+plt.setp(baseline, 'color', 'gray', 'linewidth', 1)
+plt.xlabel('x')
+plt.ylabel('$F_X(k)$')
+plt.legend(loc='best')
+plt.grid(True)
+plt.savefig("../figs/cdf.png")
+plt.show()
+
+
+
 
 
 
