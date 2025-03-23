@@ -57,108 +57,226 @@
 \numberwithin{figure}{enumi}
 \renewcommand{\thetable}{\theenumi}
 
-\textbf{QUESTION} : \\
-Find the area bounded by the curves $\cbrak{\brak{x,y} : y \geq x^2  \text{ and } y = \abs{x} }$ \\
-\textbf{SOLUTION} : \\
-\textbf{Theoritical} : \\
-\begin{enumerate}
-	\item \textbf{FINDING THE POINT OF INTERSECTION} : \\
-		General equation of a conic can be expressed as
-		\begin{align}
-			g(x) : \vec{x}^T\vec{v}\vec{x} + 2\vec{u}^T\vec{x} + f &= 0 \label{eq:conic}
-		\end{align}
-		The given curve can be expressed as a conic with formula
-		\begin{align}
-			\vec{V} &= \myvec{ 1 & 0 \\ 0 & 0 } \\
-			\vec{u} &= \myvec{ 0 \\ \frac{-1}{2} } \\
-			f &= 0
-		\end{align}
-		General equation of a line can be expressed as
-		\begin{align}
-			L : \vec{x} &= \vec{h} + k\vec{m} \label{eq:line}
-		\end{align}
-		The given line equation can be written as
-		\begin{align}
-			\vec{h} &= \myvec{0 \\ 0} \\
-			\vec{m} &= \myvec{1 \\ 1}
-		\end{align}
-		Point of intersection of a line \eqref{eq:line} with a conic \eqref{eq:conic} is given by
-		\begin{align}
-			\vec{x}_{i} &= \vec{h} + k_{i} \vec{m} \label{eq:subs}
-		\end{align}
-		where, 
-		\begin{align}
-			k_i &= \frac{1}{\vec{m}^T\vec{v}\vec{m}} \brak{ -\vec{m}^T \brak{\vec{V}\vec{h} + \vec{u}} \pm \sqrt{ \brak{\vec{V}\vec{h} + \vec{u}}^2 - g(\vec{h}) \brak{\vec{m}^T\vec{v}\vec{m}}}} 
-		\end{align}
-		Substituting the given parameters in \eqref{eq:subs}, we have
-		\begin{align}
-			\vec{x}_1 &= \myvec{ 0 \\ 0 } \\
-			\vec{x}_2 &= \myvec{ 1 \\ 1 } 
-		\end{align}
-	\item \textbf{EVALUATING THE INTEGRAL } : \\
-	From the graph, it can be seen that 
-	\begin{align}
-		x \geq x^2 \text{ for } 0 \leq x \leq 1
-	\end{align}
-	Hence, the integral becomes
-	\begin{align}
-		A &= 2 \brak{ \int_{0}^{1} \brak{x - x^2} dx }\\
-		A &= 2 \brak{ \left[ \frac{x^2}{2} - \frac{x^3}{3} \right]_{0}^{1} } \\
-		A &= 2 \brak{ \frac{1}{2} - \frac{1}{3} }\\
-		A &= 2 \brak{ \frac{1}{6} } \\
-		A &= \frac{1}{3}
-	\end{align}
-	Hence, the area bounded by the given curves is $\frac{1}{3}$. \\
-\end{enumerate}
-\textbf{Simulation } : 
-\begin{enumerate}
-\item For a general interval, say $\sbrak{a,b}$, split up the intervals into $n$ parts such that
-\begin{align}
-	h &= \frac{b-a}{n} \label{eq:split}
-\end{align}
-\item Consider the points 
-\begin{align}
-	x_{0} &= a \\
-	x_{n} &= b \\
-	x_{i+1} &= x_{i} + h
-\end{align}
-\item \textbf{Trapezoid rule} : \\
-Summing the areas of the trapezoids formed, we have
-\begin{align}
-	f(x) &= x - x^2 \\
-	A &\approx \frac{h}{2} \brak{(f(x_{0}) + f(x_{1})) + (f(x_{1}) + f(x_{2})) + \dots + (f(x_{n-1}) + f(x_{n}))} \\
-	A &\approx \frac{h}{2} \brak{f(x_{0}) + 2 \sum_{i=1}^{n-1} f(x_{i}) + f(x_{n}) } \label{eq:dif}
-\end{align}
-In the given question, 
-\begin{align}
-	a &= 0 \\
-	b &= 1
-\end{align}
-Clearly, 
-\begin{align}
-	f(a) = f(b) = 0
-\end{align}
-since both the curves have $(0,0)$ and $(1,1)$ as their common points. Simplifying from \eqref{eq:split} and \eqref{eq:dif}, we have
-\begin{align}
-	A &\approx \frac{1}{n} \brak{\sum_{i=1}^{n-1} x_{i} - x_{i}^2 } \\
-	A &\approx \frac{1}{n} \brak{\sum_{i=1}^{n-1} \frac{i}{n}  - (\frac{i}{n} )^2 } \\
-	A &\approx \frac{1}{n^2} \brak{ \sum_{i=1}^{n-1} \brak{i - \frac{i^2}{n} } } \label{eq:diff}
-\end{align}
-Consider
-\begin{align}
-A_{n+1} &= A_{n} + \frac{h}{2} \brak{y_{n} + y_{n+1}} \\
-A_{n+1} &= A_{n} + \frac{h}{2} \brak{y_{n} + \brak{y_{n} + h y^{\prime}_{n}}} \\
-A_{n+1} &= A_{n} + \frac{h}{2} \brak{y_{n} + \brak{y_{n} + h (1 - 2x_{n} )} } \\
-A_{n+1} &= A_{n} + \frac{h}{2} \brak{2 y_{n} + h \brak{1 - 2 x_{n}}}
-\end{align}
-which is the required difference equation.
-\item The above equation can be coded to obtain the area bounded by the two curves.
-\item It can be seen that the approximate solution turns out to be 0.3333333299999998.
-\end{enumerate}
-\begin{figure}[h]
+
+\section{\textbf{SOLVING SECOND ORDER DIFFERENTIAL EQUATION BY THE METHOD OF ANNIHILATORS}}
+\begin{itemize}
+\item The method of solving higher order non-homogeneous differential equation
+$$ L[y] = g(t) $$ by homogenizing it, i.e., by making the $g(t) = 0$ is called \color{blue} Annihilator method \color{black}.
+\item This can be done by subsequent differentiation on both sides and by appropriate scaling.
+\item \textbf{NOTATION : } Consider the differential equation, 
+\begin{equation}
+	L[y] = g(t)
+\end{equation}
+and the \color{blue} Differential operator \color{black}
+\begin{equation}
+	D = \frac{d}{dt} g(t) \\
+	D^n = \frac{d^n}{dt^n} g(t)
+\end{equation}
+\end{itemize}
+This can be seen with the following example - \\
+Consider $g(t) = \sin{at}$ \\
+\begin{align*}
+	g(t) &= \sin{at} \\
+	D &= a \cos{at} \\
+	D^2 &= -a^2 \sin{at} \\
+	\implies D^2 + a^2 = 0
+\end{align*}
+is the required annihilator of $L[y] = \sin{at}$.
+\begin{table}[htbp]
 \centering
-\includegraphics[width=\columnwidth]{figs/fig.png}
-\caption{Plot of the given question.}
-\label{fig:Plot1} 
+\caption{Functions and Their Annihilators}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Function $f(x)$} & \textbf{Annihilator $Q(D)$} \\
+\hline
+$a_n x^n + a_{n-1} x^{n-1} + \cdots + a_1 x + a_0$ & $D^{n+1}$ \\
+\hline
+$e^{ax}$ & $D - a$ \\
+\hline
+$x^n e^{ax}$ & $(D - a)^{n+1}$ \\
+\hline
+$\cos(ax)$ or $\sin(ax)$ & $D^2 + a^2$ \\
+\hline
+$x^n \cos(ax)$ or $x^n \sin(ax)$ & $(D^2 + a^2)^{n+1}$ \\
+\hline
+$e^{ax} \cos(bx)$ or $e^{ax} \sin(bx)$ & $(D-a)^2 + b^2$ \\
+\hline
+$x^n e^{ax} \cos(bx)$ or $x^n e^{ax} \sin(bx)$ & $\left[(D-a)^2 + b^2\right]^{n+1}$ \\
+\hline
+$a_n x^n + \cdots + a_0 + b_1 e^{c_1 x} + \cdots + b_m e^{c_m x}$ & $D^{n+1}(D-c_1) \cdots (D-c_m)$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Additional Notes on Annihilators}
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Property} & \textbf{Description} \\
+\hline
+Sum Rule & If $f(x) = g(x) + h(x)$, then an annihilator for $f(x)$ is $A(D) = A_g(D) \cdot A_h(D)$ where $A_g(D)$ annihilates $g(x)$ and $A_h(D)$ annihilates $h(x)$ \\
+\hline
+Minimal Annihilator & Always use the smallest degree annihilator possible to minimize the order of the resulting homogeneous equation \\
+\hline
+Constant Multiples & If $A(D)$ annihilates $f(x)$, then $A(D)$ also annihilates $c \cdot f(x)$ for any constant $c$ \\
+\hline
+Application Method & Apply the annihilator to both sides of the equation $L[y] = g(x)$ to get a homogeneous equation $A(D)L[y] = 0$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{\textbf{SOLVING THE GIVEN CIRCUIT} : }
+\section{Response of RL series circuit with square wave input}
+Consider a series RL circuit as shown in Figure \ref{fig:rl}
+% Circuit diagram
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\normalsize]
+\draw (5.5,18) to[square voltage source, sources/symbol/rotate=auto] (5.5,15);
+\draw (5.5,18) to[short] (6.5,18);
+\draw (6.5,18) to[R] (9,18);
+\draw (9,18) to[L ] (9,15);
+\draw (5.5,15) to[short] (9,15);
+\node [font=\normalsize] at (5,16.5) {V};
+\node [font=\normalsize] at (7.5,18.5) {R};
+\node [font=\normalsize] at (8.5,16.5) {L};
+\end{circuitikz}
+}%
+\label{fig:rl}
 \end{figure}
+
+% Square wave input
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\normalsize]
+\draw [->, >=Stealth] (5.75,14) -- (5.75,18.5);
+\draw [->, >=Stealth] (5.5,14.5) -- (14.25,14.5);
+\draw (5.75,17) to[short] (8.25,17);
+\draw (8.25,17) to[short] (8.25,14.5);
+\draw (8.25,14.5) to[short] (9.25,14.5);
+\draw (9.25,14.5) to[short] (12.5,14.5);
+\draw (9.25,14.5) to[short] (9.25,17);
+\draw (9.25,17) to[short] (11.75,17);
+\draw (11.75,17) to[short] (11.75,14.5);
+\draw (11.5,14.5) to[short] (12.5,14.5);
+\draw (12.75,14.5) to[short] (12.75,17);
+\draw (12.75,17) to[short] (13.5,17);
+\draw [dashed] (5.75,17) -- (14.25,17);
+\node [font=\normalsize] at (14.5,14.5) {t};
+\node [font=\normalsize] at (5.25,18.25) {v(t)};
+\node [font=\normalsize] at (5.5,17) {10};
+\node [font=\normalsize] at (8.25,14.25) {$\alpha$ T};
+\node [font=\normalsize] at (9.25,14.25) {T};
+\node [font=\normalsize] at (11.5,14.25) {(1+$\alpha$) T};
+\node [font=\normalsize] at (12.75,14.25) {2T};
+\end{circuitikz}
+}%
+\label{fig:input}
+\end{figure}
+
+The governing differential equation of the scenario can be written as - 
+\begin{equation}
+	\frac{di}{dt} + \brak{\frac{R}{L}} i = \frac{V}{L} \label{eq:rlresp}
+\end{equation}
+The above equation \eqref{eq:rlresp} can be solved analytically by decomposing the input as sum of sines and cosines of different frequencies, treating each term as individual voltage sources, computing their individual responses and clubbing them as the overall response of the circuit.
+
+\subsection{\textbf{Response of $L[y] = a_0$} : }
+Consider a series RL circuit with constant voltage source. The governing DE can be framed as \\
+\begin{align*}
+	\frac{di}{dt} + \brak{\frac{R}{L}} i &= \frac{a_{0}}{L} \\
+	\frac{di}{dt} &= \frac{a_0 - iR}{L} \\
+	\frac{di}{a_0 - iR} &= \frac{dt}{L} \\
+	\frac{-1}{R} \log{a_0 - iR} &= \frac{t}{L} \\
+	i_1 &= \frac{a_0}{R} - c_1 e^{-\frac{tR}{L}} \label{eq:i1}
+\end{align*}
+
+\subsection{\textbf{Response of $L[y] = a_{k} \cos{k \omega_{0} t}$} : }
+Consider a series RL circuit with cosinusoidal voltage source. The governing DE can be framed as:
+\begin{align*}
+	\frac{di}{dt} + \left(\frac{R}{L}\right) i &= \frac{a_{k} \cos{k \omega_{0} t}}{L} \\
+	i \left(e^{\frac{Rt}{L}}\right) &= \int \left(e^{\frac{Rt}{L}}\right) \frac{a_{k} \cos{k \omega_{0} t}}{L} \, dt \nonumber \\
+	i_2 &= c_2 e^{-\frac{Rt}{L}} + \frac{a_{k}}{R^2 + (k \omega_{0} L)^2} \left(R \cos{k \omega_{0} t} + k \omega_{0} L \sin{k \omega_{0} t}\right) \label{eq:i2}
+\end{align*}
+
+\subsection{\textbf{Response of $L[y] = b_{k} \sin{k \omega_{0} t}$} : }
+Consider a series RL circuit with sinusoidal voltage source. The governing DE can be framed as:
+\begin{align*}
+	\frac{di}{dt} + \left(\frac{R}{L}\right) i &= \frac{b_{k} \sin{k \omega_{0} t}}{L} \\
+	i \left(e^{\frac{Rt}{L}}\right) &= \int \left(e^{\frac{Rt}{L}}\right) \frac{b_{k} \sin{k \omega_{0} t}}{L} \, dt \nonumber \\
+	i_3 &= c_3 e^{-\frac{Rt}{L}} + \frac{b_{k}}{R^2 + (k \omega_{0} L)^2} \left(R \sin{k \omega_{0} t} - k \omega_{0} L \cos{k \omega_{0} t}\right) \label{eq:i3}
+\end{align*}
+
+
+\section{\textbf{FINDING FOURIER COEFFICIENTS} : }
+By the method of \color{blue} Fourier analysis \color{black}, it is proposed that \textbf{" } \textit{Every periodic function can be written as a sum of sines and cosines of different frequencies.} \textbf{ "}. Some important properties related to this are - 
+\begin{enumerate}
+\item \textbf{Orthogonality : } - The integral over a period of the product of two sines or cosines with different frequencies evaluates to $0$. Hence, sines and cosines of different frequencies are always orthogonal over a period.
+\begin{align*}
+	\int_{a}^{a + nT} \sin{mt} \sin{nt} &= 0, m \neq n \\
+	\int_{a}^{a + nT} \sin{mt} \cos{nt} &= 0, m \neq n
+\end{align*}
+\item \textbf{Projection : } - Projection of a function $f(t)$ on $g(t)$ in a interval $[a,b]$ is given as - 
+\begin{align*}
+	P(t) &= \int_{a}^{b} f(t) g(t) dt
+\end{align*}
+\end{enumerate}
+Consider a function $g(t)$. By the method of Fourier analysis, we have
+\begin{equation}	
+	g(t) = a_{0} + \sum_{k = 1}^{\infty} \brak{a_{k} \cos{k \omega_{0} t} + b_{k} \sin{k \omega_{0} t}}
+\end{equation}
+The individual coefficients, $a_{k} \brak{\text{ or } b_{k}}$  can be found out by multiplying $\cos{k \omega_{0} t} \brak{\text{ or } \sin_{k \omega_{0} t}}$ and integrating over a period.
+\begin{align*}
+	\int_{0}^{2 \pi} g(t) \cos{k \omega_{0} t} dt &= \int_{0}^{2 \pi} \brak{a_{0} + \sum_{k = 1}^{\infty} \brak{a_{k} \cos{k \omega_{0} t} + b_{k} \sin{k \omega_{0} t}}} dt \\
+	\int_{0}^{2 \pi} g(t) \cos{k \omega_{0} t} dt &= a_{k} \int_{0}^{2 \pi} \cos^{2}{k \omega_{0} t} dt \\
+	\int_{0}^{2 \pi} g(t) \cos{k \omega_{0} t} dt &= a_{k} \pi \\
+	a_{k} &= \frac{1}{\pi} \brak{\int_{0}^{2 \pi} g(t) \cos{k \omega_{0} t}} dt \\
+	a_{0} &= \frac{1}{2 \pi} \brak{\int_{0}^{2 \pi} g(t)} dt
+\end{align*}
+Similarly, 
+\begin{align*}
+	b_{k} &= \frac{1}{\pi} \brak{\int_{0}^{2 \pi} g(t) \sin{k \omega_{0} t}} dt
+\end{align*}
+
+\subsection{\textbf{Finding the coefficients of the square wave } : }
+Consider the equation, 
+\begin{equation}
+g(t) = 
+\begin{cases} 
+A, & 0 \leq t < \alpha T \\ 
+0, & \alpha T \leq t < T
+\end{cases}
+\end{equation}
+Determining the coefficients, we have
+\begin{align*}
+	a_{0} &= \frac{1}{2 \pi} \brak{\int_{0}^{2 \pi} g(t)} dt \\
+	a_{0} &= \frac{1}{T} \brak{\int_{0}^{\alpha T} A} dt \\
+	a_{0} &= \alpha A \label{eq:a0}
+\end{align*}
+Similarly,
+\begin{align*}
+	a_{k} &= \frac{1}{\pi} \brak{\int_{0}^{2 \pi} g(t) \cos{k \omega_{0} t}} dt \\
+	a_{k} &= \frac{2}{T} \brak{\int_{0}^{\alpha T} A \cos{k \omega_{0} t}} dt \\
+	a_{k} &= \frac{A}{\pi k} \brak{\sin{2 \pi k \alpha}} \label{eq:ak} \\
+	b_{k} &= \frac{1}{\pi} \brak{\int_{0}^{2 \pi} g(t) \sin{k \omega_{0} t}} dt \\
+	b_{k} &= \frac{2}{T} \brak{\int_{0}^{\alpha T} A \sin{ k \omega_{0} t} } dt \\
+	b_{k} &= \frac{A}{\pi k} \brak{1 - \cos{2 \pi k \alpha}} \label{eq:bk}
+\end{align*}
+
+\section{\textbf{SOLVING RL CIRCUIT USING FOURIER ANALYSIS} : }
+From \eqref{eq:i1}, \eqref{eq:i2} and \eqref{eq:i3}, we have the net current, $i$ as
+\begin{equation}
+	i = i_1 + i_2 + i_3
+\end{equation}
+\begin{align*}
+	i &= \frac{a_0}{R} - c_1 e^{-\frac{tR}{L}} + \sum_{k = 1}^{\infty} \brak{c_2 e^{-\frac{Rt}{L}} + \frac{a_{k}}{R^2 + (k \omega_{0} L)^2} \brak{R \cos{k \omega_{0} t} + k \omega_{0} L \sin{k \omega_{0} t}} + \\ & c_3 e^{-\frac{Rt}{L}} + \frac{a_{k}}{R^2 + (k \omega_{0} L)^2} \brak{R \sin{k \omega_{0} t} - k \omega_{0} L \cos{k \omega_{0} t}}} \\
+	i &= c e^{-\frac{Rt}{L}} + \frac{a_0}{R} + \sum_{k=1}^{\infty} \sbrak{\brak{\frac{a_{k}R - b_{k}k \omega_{0}L}{R^2 + (k \omega_{0} L)^2}} \cos{k \omega_{0} t} + \brak{\frac{a_{k}k \omega_{0} L + b_{k}R}{R^2 + (k \omega_{0} L)^2}} \sin{k \omega_{0} t}} \\
+	i &= c e^{-\frac{Rt}{L}} + \frac{\alpha A}{R} + \sum_{k=1}^{\infty} \sbrak{\brak{\frac{A}{\pi k} \brak{\frac{R \sin{2 \pi k \alpha} + k \omega_{0} L \cos{2 \pi k \alpha} - k \omega_{0} L}{R^2 + (k \omega_{0} L)^2}}} \cos{(k \omega_{0} t)} + \\ & \brak{\frac{A}{\pi k} \brak{\frac{k \omega_{0} L \sin{2 \pi k \alpha} - R \cos{2 \pi k \alpha} + R}{R^2 + (k \omega_{0} L)^2}}} \sin{(k \omega_{0} t)}}
+\end{align*}
+
+
 \end{document}
