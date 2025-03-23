@@ -5,6 +5,158 @@
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
+#include <stdio.h>
+
+# define h 0.01
+# define PI 3.14159265359
+# define E 2.7182818
+ 
+
+double rk4_1(double x, double y, double x0, double (*function)(double, double))
+{
+    double k1, k2, k3, k4;
+    while ((x - x0 > 1e-5) || (x - x0 < -1e-5))
+    {
+        k1 = h*function(x, y);
+        k2 = h*function(x + h/2, y + k1/2);
+        k3 = h*function(x + h/2, y + k2/2);
+        k4 = h*function(x + h, y + k3);
+        y += (k1 + 2*k2 + 2*k3 + k4)/6;
+        x += h;
+    }
+    return y;
+}
+
+double rk4_2(double x, double y1, double y2, double x0, 
+              double (*f1)(double, double, double), 
+              double (*f2)(double, double, double)) 
+{
+    double k1_1, k2_1, k3_1, k4_1;
+    double k1_2, k2_2, k3_2, k4_2;
+    while ((x - x0) > 1e-3 || (x - x0) < -1e-3) 
+    {
+        k1_1 = h * f1(x, y1, y2);
+        k1_2 = h * f2(x, y1, y2);
+        k2_1 = h * f1(x + h / 2, y1 + k1_1 / 2, y2 + k1_2 / 2);
+        k2_2 = h * f2(x + h / 2, y1 + k1_1 / 2, y2 + k1_2 / 2);
+        k3_1 = h * f1(x + h / 2, y1 + k2_1 / 2, y2 + k2_2 / 2);
+        k3_2 = h * f2(x + h / 2, y1 + k2_1 / 2, y2 + k2_2 / 2);
+        k4_1 = h * f1(x + h, y1 + k3_1, y2 + k3_2);
+        k4_2 = h * f2(x + h, y1 + k3_1, y2 + k3_2);
+        y1 += (k1_1 + 2*k2_1 + 2*k3_1 + k4_1) / 6;
+        y2 += (k1_2 + 2*k2_2 + 2*k3_2 + k4_2) / 6;
+        x += h;
+    }
+    return y1;  // Return the sine value at x = x0
+}
+
+double compute_scientific_functions(double value, int mode)
+{
+    // Function to calculate e^x
+    if (mode == 1)
+    {
+        double function(double x, double y) { return y; }
+        return rk4_1(0, 1, value, function);
+    }
+    // Function to calculate sin(x)
+    else if (mode == 2)
+    {
+        double f1(double x, double y1, double y2) { return y2; }
+        double f2(double x, double y1, double y2) { return -y1; }
+        if (value == 0) { return 0; }
+        else if (value > 0) { return rk4_2(0, 0, 1, value, f1, f2); }  // Fixed initial condition y2 = 1
+        else if (value < 0) { return -1*rk4_2(0, 0, 1, -value, f1, f2); }
+    }
+    // Function to calculate cos(x)
+    else if (mode == 3)
+    {
+        double f1(double x, double y1, double y2) { return y2; }
+        double f2(double x, double y1, double y2) { return -y1; }
+        if (value == 0) { return 1; }
+        else if (value > 0) { return rk4_2(0, 1, 0, value, f1, f2); }
+        else if (value < 0) { return rk4_2(0, 1, 0, -value, f1, f2); }
+    }
+    // Function to calculate tan(x)
+    else if (mode == 4)
+    {
+        double cosval = compute_scientific_functions(value, 3);
+        if (cosval == 0) { 
+            printf("Infinity"); 
+            return 0;  // Added return value for error case
+        }
+        else { 
+            return compute_scientific_functions(value, 2)/cosval; 
+        }
+    }
+    // Function to calculate ln(x)
+else if (mode == 5)
+{
+    double function(double x, double y) { return 1/x; }
+    if (value <= 0) { 
+        printf("Math Error."); 
+        return 0;  // Added return value for error case
+    }
+    else if (value > 0) {
+        return rk4_1(1, 0, value, function);  // Initial condition: ln(1) = 0
+    }
+}
+// Function to calculate log10(x)
+else if (mode == 6)
+{
+    double function(double x, double y) { return 1/(2.3025*x); }
+    if (value <= 0) { 
+        printf("Math error."); 
+        return 0;  // Added return value for error case
+    }
+    else if (value > 0) {
+        return rk4_1(1, 0, value, function);  // Initial condition: log10(1) = 0
+    }
+}
+    // Function to calculate sqrt(x)
+    else if (mode == 7)
+    {
+        double function(double x, double y) { return 1/(2*y); }
+        if (value < 0) { 
+            printf("Math error."); 
+            return 0;  // Added return value for error case
+        }
+        else if (value == 0) { return 0; }
+        else { 
+            // For sqrt, initial condition should start with a known point
+            // e.g., sqrt(1) = 1, then integrate to the target value
+            return rk4_1(1, 1, value, function);
+        }
+    }
+    // Function to calculate sin⁻¹(x) (arcsin)
+    if (mode == 8)
+    {
+        if (value < -1 || value > 1) {
+            printf("Math Error:");
+            return ;
+        }
+        double arcsin_function(double x, double y) { return 1.0 / compute_scientific_functions(1 - x*x, 7); }
+        if ( value == 1 ) { return PI/2 ; }
+        else if ( value == -1 ) { return -PI/2 ; }
+        else { return rk4_1(0, 0, value, arcsin_function); } 
+    }
+    // Function to calculate acos(x)
+    if ( mode == 9 )
+    {
+          if (value < -1 || value > 1) {
+            printf("Math Error:");
+            return ;
+          }
+          else { return PI/2 - compute_scientific_functions(value, 8) ; }
+    }
+    // Arctangent function tan-1(x)
+    if (mode == 10 )
+    {
+        double function(double x, double y) { return 1.0 / (1 + x*x ) ; }
+        return rk4_1(0, 0, value, function);
+    }
+    
+    return 0;  // Default return for invalid mode
+}
 
 // Define LCD pins
 #define RS 12      // Register Select pin
@@ -29,6 +181,7 @@
 // Define macros for pin manipulation
 #define SetBit(PORT, BIT) ((PORT) |= (1 << (BIT)))
 #define ClearBit(PORT, BIT) ((PORT) &= ~(1 << (BIT)))
+#define ReadBit(PORT, BIT) ((PORT) & (1 << (BIT)))
 
 // Convert Arduino pin numbers to AVR port and pin
 #define RS_PORT PORTB
@@ -129,13 +282,14 @@ int shift_mode = 0;
 int alpha_mode = 0;
 double memory = 0.0;
 double last_result = 0.0;
-char buffer[16];  // Global buffer for string operations
+char buffer[32];  // Increased buffer size for string operations
 
 // Function prototypes
 void lcd_init(void);
 void lcd_command(unsigned char cmd);
 void lcd_char(unsigned char data);
-void lcd_string(char *str);
+void lcd_string(const char *str);
+void lcd_string_P(const char *str);
 void lcd_clear(void);
 void keypad_init(void);
 char keypad_scan(void);
@@ -146,8 +300,9 @@ void handle_shift_mode(char *key, char *expression, int *expr_index);
 void handle_alpha_mode(char *key, char *expression, int *expr_index);
 void handle_special_functions(char *key, char *expression, int *expr_index);
 double factorial(int n);
+void write_string_to_buffer(const char *src, char *dest, int *index);
 
-#define MAX_EXPRESSION_LENGTH 50
+#define MAX_EXPRESSION_LENGTH 64  // Increased for complex expressions
 
 int main(void) {
     char expression[MAX_EXPRESSION_LENGTH] = "";
@@ -156,11 +311,11 @@ int main(void) {
     lcd_init();
     keypad_init();
 
-    lcd_string("Welcome !");
+    lcd_string_P(PSTR("Welcome !"));
     _delay_ms(2000);
     lcd_clear();
 
-    lcd_string("Enter expression:");
+    lcd_string_P(PSTR("Enter expression:"));
     lcd_command(LCD_SET_CURSOR | 0x40);  // Move to second line
 
     while(1) {
@@ -170,24 +325,24 @@ int main(void) {
             if (key == 'S') {
                 shift_mode = !shift_mode;
                 lcd_clear();
-                lcd_string(shift_mode ? "Shift mode ON" : "Shift mode OFF");
+                lcd_string_P(shift_mode ? PSTR("Shift mode ON") : PSTR("Shift mode OFF"));
                 _delay_ms(1000);
                 lcd_clear();
-                lcd_string("Enter expression:");
+                lcd_string_P(PSTR("Enter expression:"));
                 lcd_command(LCD_SET_CURSOR | 0x40);
                 lcd_string(expression);
             } else if (key == 'A') {
                 alpha_mode = !alpha_mode;
                 lcd_clear();
-                lcd_string(alpha_mode ? "Alpha mode ON" : "Alpha mode OFF");
+                lcd_string_P(alpha_mode ? PSTR("Alpha mode ON") : PSTR("Alpha mode OFF"));
                 _delay_ms(1000);
                 lcd_clear();
-                lcd_string("Enter expression:");
+                lcd_string_P(PSTR("Enter expression:"));
                 lcd_command(LCD_SET_CURSOR | 0x40);
                 lcd_string(expression);
             } else if (key == 'C') {
                 lcd_clear();
-                lcd_string("Enter expression:");
+                lcd_string_P(PSTR("Enter expression:"));
                 lcd_command(LCD_SET_CURSOR | 0x40);
                 expr_index = 0;
                 expression[expr_index] = '\0';
@@ -195,23 +350,30 @@ int main(void) {
                 expr_index--;
                 expression[expr_index] = '\0';
                 lcd_command(LCD_SET_CURSOR | 0x40);
-                lcd_string("                ");  // Clear second line
+                lcd_string_P(PSTR("                "));  // Clear second line
                 lcd_command(LCD_SET_CURSOR | 0x40);
                 lcd_string(expression);
             } else if (key == '=') {
                 expression[expr_index] = '\0';
                 lcd_clear();
-                lcd_string("Result:");
+                lcd_string_P(PSTR("Result:"));
                 lcd_command(LCD_SET_CURSOR | 0x40);
                 evaluate_expression(expression);
                 expr_index = 0;
                 expression[expr_index] = '\0';
                 _delay_ms(3000);
                 lcd_clear();
-                lcd_string("Enter expression:");
+                lcd_string_P(PSTR("Enter expression:"));
                 lcd_command(LCD_SET_CURSOR | 0x40);
             } else if (expr_index < MAX_EXPRESSION_LENGTH - 1) {
-                handle_special_functions(&key, expression, &expr_index);
+                if (shift_mode) {
+                    handle_shift_mode(&key, expression, &expr_index);
+                } else if (alpha_mode) {
+                    handle_alpha_mode(&key, expression, &expr_index);
+                } else {
+                    handle_special_functions(&key, expression, &expr_index);
+                }
+                
                 if (key != 0) {  // Only add the key if it wasn't handled by a special function
                     expression[expr_index++] = key;
                     expression[expr_index] = '\0';
@@ -223,6 +385,17 @@ int main(void) {
     }
 
     return 0;
+}
+
+// Function to write a string to buffer and update index
+void write_string_to_buffer(const char *src, char *dest, int *index) {
+    int i = 0;
+    while (src[i] != '\0' && (*index + i) < MAX_EXPRESSION_LENGTH - 1) {
+        dest[*index + i] = src[i];
+        i++;
+    }
+    *index += i;
+    dest[*index] = '\0';
 }
 
 char keypad_scan(void) {
@@ -298,76 +471,66 @@ void handle_shift_mode(char *key, char *expression, int *expr_index) {
         
         // Handle the function based on its name
         if (strcmp_P(function, PSTR("asin")) == 0) {
-            strcpy(buffer, "asin(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("asin("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("acos")) == 0) {
-            strcpy(buffer, "acos(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("acos("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("atan")) == 0) {
-            strcpy(buffer, "atan(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("atan("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("y^x")) == 0) {
             *key = '^';
         } else if (strcmp_P(function, PSTR("CLR")) == 0) {
             lcd_clear();
-            lcd_string("Enter expression:");
+            lcd_string_P(PSTR("Enter expression:"));
             lcd_command(LCD_SET_CURSOR | 0x40);
             *expr_index = 0;
             expression[*expr_index] = '\0';
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("10^")) == 0) {
-            strcpy(buffer, "10^");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("10^"));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("e")) == 0) {
-            strcpy(buffer, "2.71828");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("2.7182818"));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("abs")) == 0) {
-            strcpy(buffer, "abs(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("abs("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("cbrt")) == 0) {
-            strcpy(buffer, "cbrt(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("cbrt("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("[")) == 0) {
             *key = '[';
         } else if (strcmp_P(function, PSTR("deg")) == 0) {
-            strcpy(buffer, "deg(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("deg("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("rad")) == 0) {
-            strcpy(buffer, "rad(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("rad("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("mod")) == 0) {
             *key = '%';
         } else if (strcmp_P(function, PSTR("fact")) == 0) {
-            strcpy(buffer, "fact(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("fact("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("]")) == 0) {
@@ -382,10 +545,10 @@ void handle_shift_mode(char *key, char *expression, int *expr_index) {
             // Memory clear function
             memory = 0.0;
             lcd_clear();
-            lcd_string("Memory cleared");
+            lcd_string_P(PSTR("Memory cleared"));
             _delay_ms(1000);
             lcd_clear();
-            lcd_string("Enter expression:");
+            lcd_string_P(PSTR("Enter expression:"));
             lcd_command(LCD_SET_CURSOR | 0x40);
             lcd_string(expression);
             *key = 0; // Don't add anything to expression
@@ -416,21 +579,18 @@ void handle_alpha_mode(char *key, char *expression, int *expr_index) {
         
         // Handle the function based on its name
         if (strcmp_P(function, PSTR("sin")) == 0) {
-            strcpy(buffer, "sin(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("sin("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("cos")) == 0) {
-            strcpy(buffer, "cos(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("cos("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("tan")) == 0) {
-            strcpy(buffer, "tan(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("tan("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("^")) == 0) {
@@ -439,53 +599,45 @@ void handle_alpha_mode(char *key, char *expression, int *expr_index) {
             // Backspace functionality - handled in main
             *key = 'D'; // Use the existing delete key behavior
         } else if (strcmp_P(function, PSTR("log")) == 0) {
-            strcpy(buffer, "log(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("log("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("ln")) == 0) {
-            strcpy(buffer, "ln(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("ln("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("e^")) == 0) {
-            strcpy(buffer, "e^(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("e^("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("√")) == 0) {
-            strcpy(buffer, "sqrt(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("sqrt("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("(")) == 0) {
             *key = '(';
         } else if (strcmp_P(function, PSTR("π")) == 0) {
-            strcpy(buffer, "3.14159");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("3.14159"));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("x²")) == 0) {
-            strcpy(buffer, "^2");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("^2"));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("x³")) == 0) {
-            strcpy(buffer, "^3");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("^3"));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("1/x")) == 0) {
-            strcpy(buffer, "1/(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("1/("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR(")")) == 0) {
@@ -502,8 +654,7 @@ void handle_alpha_mode(char *key, char *expression, int *expr_index) {
             }
             if (*p == '.') *p = '\0';
             
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         } else if (strcmp_P(function, PSTR("M+")) == 0) {
@@ -517,10 +668,10 @@ void handle_alpha_mode(char *key, char *expression, int *expr_index) {
             memory += result;
             
             lcd_clear();
-            lcd_string("Added to memory");
+            lcd_string_P(PSTR("Added to memory"));
             _delay_ms(1000);
             lcd_clear();
-            lcd_string("Enter expression:");
+            lcd_string_P(PSTR("Enter expression:"));
             lcd_command(LCD_SET_CURSOR | 0x40);
             lcd_string(expression);
             *key = 0; // Don't add anything to expression
@@ -535,10 +686,10 @@ void handle_alpha_mode(char *key, char *expression, int *expr_index) {
             memory -= result;
             
             lcd_clear();
-            lcd_string("Subtracted from mem");
+            lcd_string_P(PSTR("Subtracted from mem"));
             _delay_ms(1000);
             lcd_clear();
-            lcd_string("Enter expression:");
+            lcd_string_P(PSTR("Enter expression:"));
             lcd_command(LCD_SET_CURSOR | 0x40);
             lcd_string(expression);
             *key = 0; // Don't add anything to expression
@@ -552,8 +703,7 @@ void handle_alpha_mode(char *key, char *expression, int *expr_index) {
             }
             if (*p == '.') *p = '\0';
             
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
         }
@@ -564,70 +714,55 @@ void handle_alpha_mode(char *key, char *expression, int *expr_index) {
 }
 
 void handle_special_functions(char *key, char *expression, int *expr_index) {
-    // Check if we're in SHIFT or ALPHA mode
-    if (shift_mode) {
-        handle_shift_mode(key, expression, expr_index);
-        return;
-    } else if (alpha_mode) {
-        handle_alpha_mode(key, expression, expr_index);
-        return;
-    }
-    
-    // For normal mode, handle some basic special functions
+    // Handle some basic special functions for normal mode
     switch (*key) {
         case 's':
-            strcpy(buffer, "sin(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("sin("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
             break;
         case 'c':
-            strcpy(buffer, "cos(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("cos("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
             break;
         case 't':
-            strcpy(buffer, "tan(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("tan("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
             break;
         case 'p':
-            strcpy(buffer, "3.14159");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("3.14159"));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
             break;
         case 'e':
-            strcpy(buffer, "2.71828");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("2.71828"));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
             break;
         case 'l':
-            strcpy(buffer, "log(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("log("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
             break;
         case 'r':
-            strcpy(buffer, "sqrt(");
-            strcat(expression, buffer);
-            *expr_index += strlen(buffer);
+            strcpy_P(buffer, PSTR("sqrt("));
+            write_string_to_buffer(buffer, expression, expr_index);
             lcd_string(buffer);
             *key = 0; // Don't add the key to expression
             break;
     }
 }
-
+// Function to calculate factorial
 double factorial(int n) {
+    if (n < 0) return NAN;  // Factorial undefined for negative numbers
     if (n <= 1) return 1;
     double result = 1;
     for (int i = 2; i <= n; i++) {
@@ -636,272 +771,235 @@ double factorial(int n) {
     return result;
 }
 
-// Modify the evaluate_expression function to handle more functions
+// Function to calculate power (x^y)
+double power(float base, int exp) {
+    double result = 1.0;
+
+    // If the exponent is negative, take the reciprocal of the base
+    if (exp < 0) {
+        base = 1.0 / base;
+        exp = -exp;
+    }
+
+    // Multiply the base 'exp' times
+    for (int i = 0; i < exp; i++) {
+        result *= base;
+    }
+
+    return result;
+}
+
+// Improved evaluate_expression function with better function handling
 void evaluate_expression(char *expression) {
     // Implementation of BODMAS rule with added functions
     char *expr = expression;
     double result = 0;
     
-    // Simple parser for basic expressions
-    // In a real calculator, you'd want a more sophisticated parser
-    
-    // For this example, using a simplified approach
-    // This handles basic operations and a few functions
-    
     // Check for special cases first
     if (strncmp(expr, "sin(", 4) == 0) {
         expr += 4;  // Skip "sin("
-        float angle = atof(expr);
+        double angle = atof(expr);
         // Find closing parenthesis
         while (*expr && *expr != ')') expr++;
         if (*expr == ')') expr++;
         
-        result = sin(angle * M_PI / 180.0);  // Convert to radians
+        // result = sin(angle * M_PI / 180.0);  // Convert to radians
+        result = compute_scientific_functions(angle*PI/180.0, 2) ;
     } else if (strncmp(expr, "cos(", 4) == 0) {
         expr += 4;  // Skip "cos("
-        float angle = atof(expr);
+        double angle = atof(expr);
         // Find closing parenthesis
         while (*expr && *expr != ')') expr++;
         if (*expr == ')') expr++;
         
-        result = cos(angle * M_PI / 180.0);  // Convert to radians
+        // result = cos(angle * M_PI / 180.0);  // Convert to radians
+        result = compute_scientific_functions(angle*PI/180.0, 3) ;
     } else if (strncmp(expr, "tan(", 4) == 0) {
         expr += 4;  // Skip "tan("
-        float angle = atof(expr);
+        double angle = atof(expr);
         // Find closing parenthesis
         while (*expr && *expr != ')') expr++;
         if (*expr == ')') expr++;
         
-        result = tan(angle * M_PI / 180.0);  // Convert to radians
-    } else if (strncmp(expr, "asin(", 5) == 0) {
-        expr += 5;  // Skip "asin("
-        float value = atof(expr);
-        // Find closing parenthesis
-        while (*expr && *expr != ')') expr++;
-        if (*expr == ')') expr++;
-        
-        result = asin(value) * 180.0 / M_PI;  // Convert to degrees
-    } else if (strncmp(expr, "acos(", 5) == 0) {
-        expr += 5;  // Skip "acos("
-        float value = atof(expr);
-        // Find closing parenthesis
-        while (*expr && *expr != ')') expr++;
-        if (*expr == ')') expr++;
-        
-        result = acos(value) * 180.0 / M_PI;  // Convert to degrees
-    } else if (strncmp(expr, "atan(", 5) == 0) {
-        expr += 5;  // Skip "atan("
-        float value = atof(expr);
-        // Find closing parenthesis
-        while (*expr && *expr != ')') expr++;
-        if (*expr == ')') expr++;
-        
-        result = atan(value) * 180.0 / M_PI;  // Convert to degrees
-    } else if (strncmp(expr, "sqrt(", 5) == 0) {
-        expr += 5;  // Skip "sqrt("
-        float value = atof(expr);
-        // Find closing parenthesis
-        while (*expr && *expr != ')') expr++;
-        if (*expr == ')') expr++;
-        
-        result = sqrt(value);
+        // result = tan(angle * M_PI / 180.0);  // Convert to radians
+        result = compute_scientific_functions(angle*PI/180.0, 4) ;
     } else if (strncmp(expr, "log(", 4) == 0) {
         expr += 4;  // Skip "log("
-        float value = atof(expr);
+        double value = atof(expr);
         // Find closing parenthesis
         while (*expr && *expr != ')') expr++;
         if (*expr == ')') expr++;
         
-        result = log10(value);
+        // result = log10(value);
+        result = compute_scientific_functions(value, 6) ;
     } else if (strncmp(expr, "ln(", 3) == 0) {
         expr += 3;  // Skip "ln("
-        float value = atof(expr);
+        double value = atof(expr);
         // Find closing parenthesis
         while (*expr && *expr != ')') expr++;
         if (*expr == ')') expr++;
         
-        result = log(value);
+        // result = log(value);
+        result = compute_scientific_functions(value, 5) ;
+    } else if (strncmp(expr, "sqrt(", 5) == 0) {
+        expr += 5;  // Skip "sqrt("
+        double value = atof(expr);
+        // Find closing parenthesis
+        while (*expr && *expr != ')') expr++;
+        if (*expr == ')') expr++;
+        
+        // result = sqrt(value);
+        result = compute_scientific_functions(value, 7) ;
+    } else if (strncmp(expr, "asin(", 5) == 0) {
+        expr += 5;  // Skip "asin("
+        double value = atof(expr);
+        // Find closing parenthesis
+        while (*expr && *expr != ')') expr++;
+        if (*expr == ')') expr++;
+        
+        // result = asin(value) * 180.0 / M_PI;  // Convert to degrees
+        result = compute_scientific_functions(value, 8)*180/PI ;
+    } else if (strncmp(expr, "acos(", 5) == 0) {
+        expr += 5;  // Skip "acos("
+        double value = atof(expr);
+        // Find closing parenthesis
+        while (*expr && *expr != ')') expr++;
+        if (*expr == ')') expr++;
+        
+        // result = acos(value) * 180.0 / M_PI;  // Convert to degrees
+        result = compute_scientific_functions(value, 9)*180/PI ;
+    } else if (strncmp(expr, "atan(", 5) == 0) {
+        expr += 5;  // Skip "atan("
+        double value = atof(expr);
+        // Find closing parenthesis
+        while (*expr && *expr != ')') expr++;
+        if (*expr == ')') expr++;
+        
+        // result = atan(value) * 180.0 / M_PI;  // Convert to degrees
+        result = compute_scientific_functions(value, 10)*180/PI ;
     } else if (strncmp(expr, "e^(", 3) == 0) {
         expr += 3;  // Skip "e^("
-        float value = atof(expr);
+        double value = atof(expr);
         // Find closing parenthesis
         while (*expr && *expr != ')') expr++;
         if (*expr == ')') expr++;
         
-        result = exp(value);
-    } else if (strncmp(expr, "cbrt(", 5) == 0) {
-        expr += 5;  // Skip "cbrt("
-        float value = atof(expr);
-        // Find closing parenthesis
-        while (*expr && *expr != ')') expr++;
-        if (*expr == ')') expr++;
-        
-        result = cbrt(value);
+        result = power(E, value);
+        // result = compute_scientific_functions(value, 1) ;
+    } else if (strncmp(expr, "10^", 3) == 0) {
+        expr += 3;  // Skip "10^"
+        double value = atof(expr);
+        result = power(10.0, value);
     } else if (strncmp(expr, "abs(", 4) == 0) {
         expr += 4;  // Skip "abs("
-        float value = atof(expr);
+        double value = atof(expr);
         // Find closing parenthesis
         while (*expr && *expr != ')') expr++;
         if (*expr == ')') expr++;
         
         result = fabs(value);
+    } else if (strncmp(expr, "cbrt(", 5) == 0) {
+        expr += 5;  // Skip "cbrt("
+        double value = atof(expr);
+        // Find closing parenthesis
+        while (*expr && *expr != ')') expr++;
+        if (*expr == ')') expr++;
+        
+        result = cbrt(value);
     } else if (strncmp(expr, "fact(", 5) == 0) {
         expr += 5;  // Skip "fact("
-        int value = atoi(expr);
+        int value = (int)atof(expr);
         // Find closing parenthesis
         while (*expr && *expr != ')') expr++;
         if (*expr == ')') expr++;
         
         result = factorial(value);
-    } else if (strncmp(expr, "deg(", 4) == 0) {
-        expr += 4;  // Skip "deg("
-        float value = atof(expr);
-        // Find closing parenthesis
-        while (*expr && *expr != ')') expr++;
-        if (*expr == ')') expr++;
-        
-        result = value * 180.0 / M_PI;  // Convert radians to degrees
-    } else if (strncmp(expr, "rad(", 4) == 0) {
-        expr += 4;  // Skip "rad("
-        float value = atof(expr);
-        // Find closing parenthesis
-        while (*expr && *expr != ')') expr++;
-        if (*expr == ')') expr++;
-        
-        result = value * M_PI / 180.0;  // Convert degrees to radians
     } else {
-        // Parse basic arithmetic expression
-        double a = parse_number(&expr);
+        // For basic arithmetic expressions
+        char op = '+'; // Start with addition
+        double current_value = 0;
         
         while (*expr) {
-            char op = *expr++;
-            
             // Skip whitespace
-            while (*expr && isspace(*expr)) {
+            while (*expr && isspace(*expr)) expr++;
+            
+            // Parse number
+            if (isdigit(*expr) || *expr == '.') {
+                current_value = atof(expr);
+                // Move to end of number
+                while (*expr && (isdigit(*expr) || *expr == '.')) expr++;
+            }
+            
+            // Perform operation
+            if (*expr == '+' || *expr == '-' || *expr == '*' || *expr == '/' || *expr == '^' || *expr == '%' || *expr == '\0') {
+                switch (op) {
+                    case '+':
+                        result += current_value;
+                        break;
+                    case '-':
+                        result -= current_value;
+                        break;
+                    case '*':
+                        result *= current_value;
+                        break;
+                    case '/':
+                        if (current_value != 0) {
+                            result /= current_value;
+                        } else {
+                            lcd_string_P(PSTR("Div by zero error"));
+                            return;
+                        }
+                        break;
+                    case '^':
+                        // result = pow(result, current_value);
+                        result = power(result, current_value) ;
+                        break;
+                    case '%':
+                        if (current_value != 0) {
+                            result = (int)result % (int) current_value ; }
+                        else {
+                            lcd_string_P(PSTR("Mod by zero error"));
+                            return;
+                        }
+                        break;
+                }
+                
+                if (*expr) {
+                    op = *expr;
+                    expr++;
+                }
+            } else {
+                // Skip any unrecognized character
                 expr++;
             }
-            
-            double b = parse_number(&expr);
-            a = perform_operation(a, b, op);
         }
-        
-        result = a;
     }
     
-    // Store the result for ANS function
+    // Store as last result
     last_result = result;
     
-    // Format and display the result
-    dtostrf(result, 8, 4, buffer);
-    
-    // Trim trailing zeros and decimal point if whole number
-    char *p = buffer + strlen(buffer) - 1;
-    while (*p == '0' && p > buffer) {
-        *p-- = '\0';
-    }
-    if (*p == '.') *p = '\0';
-    
-    lcd_string(buffer);
-}
-
-double parse_number(char **expr) {
-    double num = 0.0;
-    int decimals = 0;
-    int decimal_places = 0;
-    int negative = 0;
-    
-    // Skip whitespace
-    while (**expr && isspace(**expr)) {
-        (*expr)++;
-    }
-    
-    // Check for negative number
-    if (**expr == '-') {
-        negative = 1;
-        (*expr)++;
-    }
-    
-    // Parse integer part
-    while (**expr && isdigit(**expr)) {
-        num = num * 10.0 + (**expr - '0');
-        (*expr)++;
-    }
-    
-    // Parse decimal part
-    if (**expr == '.') {
-        (*expr)++;
-        while (**expr && isdigit(**expr)) {
-            num = num * 10.0 + (**expr - '0');
-            decimal_places++;
-            (*expr)++;
-        }
-        decimals = 1;
-    }
-    
-    // Apply decimal point
-    if (decimals) {
-        while (decimal_places > 0) {
-            num /= 10.0;
-            decimal_places--;
-        }
-    }
-    
-    // Apply sign
-    if (negative) {
-        num = -num;
-    }
-    
-    // Handle scientific notation
-    if (**expr == 'E' || **expr == 'e') {
-        (*expr)++;
+    // Format the result for display
+    if (isnan(result)) {
+        lcd_string_P(PSTR("Error"));
+    } else if (isinf(result)) {
+        lcd_string_P(PSTR("Infinity"));
+    } else {
+        dtostrf(result, 8, 4, buffer);
         
-        // Get exponent sign
-        int exp_negative = 0;
-        if (**expr == '-') {
-            exp_negative = 1;
-            (*expr)++;
-        } else if (**expr == '+') {
-            (*expr)++;
+        // Trim trailing zeros and decimal point if whole number
+        char *p = buffer + strlen(buffer) - 1;
+        while (*p == '0' && p > buffer) {
+            *p-- = '\0';
         }
+        if (*p == '.') *p = '\0';
         
-        // Parse exponent
-        int exponent = 0;
-        while (**expr && isdigit(**expr)) {
-            exponent = exponent * 10 + (**expr - '0');
-            (*expr)++;
-        }
-        
-        // Apply exponent
-        if (exp_negative) {
-            while (exponent > 0) {
-                num /= 10.0;
-                exponent--;
-            }
-        } else {
-            while (exponent > 0) {
-                num *= 10.0;
-                exponent--;
-            }
-        }
-    }
-    
-    return num;
-}
-
-double perform_operation(double a, double b, char op) {
-    switch (op) {
-        case '+': return a + b;
-        case '-': return a - b;
-        case '*': return a * b;
-        case '/': return a / b;
-        case '^': return pow(a, b);
-        case '%': return fmod(a, b);
-        default: return b;  // For unknown operations, just return the second operand
+        lcd_string(buffer);
     }
 }
 
+// Function to initialize the LCD
 void lcd_init(void) {
-    // Set LCD pins as output
+    // Set data pins as output
     SetBit(RS_DDR, RS_PIN);
     SetBit(EN_DDR, EN_PIN);
     SetBit(D4_DDR, D4_PIN);
@@ -909,49 +1007,60 @@ void lcd_init(void) {
     SetBit(D6_DDR, D6_PIN);
     SetBit(D7_DDR, D7_PIN);
     
-    // Wait for LCD to power up
+    // Wait for LCD to initialize
     _delay_ms(50);
     
-    // Initialize in 4-bit mode
-    // First send 0x03 three times (recommended by datasheet)
+    // 4-bit initialization sequence
+    // Set to 4-bit mode
     ClearBit(RS_PORT, RS_PIN);  // RS = 0 for command
     
-    // Send 0x03 first time
+    // Function set - 8-bit mode first (3 times)
     ClearBit(D4_PORT, D4_PIN);
     ClearBit(D5_PORT, D5_PIN);
     SetBit(D6_PORT, D6_PIN);
     SetBit(D7_PORT, D7_PIN);
+    
+    // Pulse enable
     SetBit(EN_PORT, EN_PIN);
     _delay_us(1);
     ClearBit(EN_PORT, EN_PIN);
     _delay_ms(5);
     
-    // Send 0x03 second time
+    // Repeat again
     SetBit(EN_PORT, EN_PIN);
     _delay_us(1);
     ClearBit(EN_PORT, EN_PIN);
-    _delay_us(100);
+    _delay_ms(1);
     
-    // Send 0x03 third time
+    // Repeat third time
     SetBit(EN_PORT, EN_PIN);
     _delay_us(1);
     ClearBit(EN_PORT, EN_PIN);
-    _delay_us(100);
+    _delay_ms(1);
     
-    // Now set to 4-bit interface
-    ClearBit(D7_PORT, D7_PIN);  // D7 = 0
+    // Now set to 4-bit mode
+    ClearBit(D7_PORT, D7_PIN);
     SetBit(EN_PORT, EN_PIN);
     _delay_us(1);
     ClearBit(EN_PORT, EN_PIN);
-    _delay_us(100);
+    _delay_ms(1);
     
-    // Now we're in 4-bit mode, send function set command
+    // Now we can use lcd_command function
+    // Set 4-bit interface, 2 line display, 5x8 font
     lcd_command(LCD_FUNCTION_4BIT_2LINE);
+    // Display on, cursor on, blinking off
     lcd_command(LCD_DISPLAY_ON);
-    lcd_command(LCD_CLEAR);
+    // Entry mode set: increment cursor, no display shift
     lcd_command(LCD_ENTRY_MODE);
+    // Clear display
+    lcd_command(LCD_CLEAR);
+    // Return home
+    lcd_command(LCD_HOME);
+    
+    _delay_ms(2);
 }
 
+// Function to send a command to the LCD
 void lcd_command(unsigned char cmd) {
     // RS = 0 for command
     ClearBit(RS_PORT, RS_PIN);
@@ -962,13 +1071,12 @@ void lcd_command(unsigned char cmd) {
     (cmd & 0x20) ? SetBit(D5_PORT, D5_PIN) : ClearBit(D5_PORT, D5_PIN);
     (cmd & 0x10) ? SetBit(D4_PORT, D4_PIN) : ClearBit(D4_PORT, D4_PIN);
     
-    // Enable pulse
+    // Pulse enable
     SetBit(EN_PORT, EN_PIN);
     _delay_us(1);
     ClearBit(EN_PORT, EN_PIN);
     
-    // Wait a bit
-    _delay_us(100);
+    _delay_us(200);
     
     // Send low nibble
     (cmd & 0x08) ? SetBit(D7_PORT, D7_PIN) : ClearBit(D7_PORT, D7_PIN);
@@ -976,15 +1084,20 @@ void lcd_command(unsigned char cmd) {
     (cmd & 0x02) ? SetBit(D5_PORT, D5_PIN) : ClearBit(D5_PORT, D5_PIN);
     (cmd & 0x01) ? SetBit(D4_PORT, D4_PIN) : ClearBit(D4_PORT, D4_PIN);
     
-    // Enable pulse
+    // Pulse enable
     SetBit(EN_PORT, EN_PIN);
     _delay_us(1);
     ClearBit(EN_PORT, EN_PIN);
     
-    // Wait for command to execute
-    _delay_ms(2);
+    // Commands need more time
+    if (cmd == LCD_CLEAR || cmd == LCD_HOME) {
+        _delay_ms(2);
+    } else {
+        _delay_us(50);
+    }
 }
 
+// Function to send data (character) to the LCD
 void lcd_char(unsigned char data) {
     // RS = 1 for data
     SetBit(RS_PORT, RS_PIN);
@@ -995,13 +1108,12 @@ void lcd_char(unsigned char data) {
     (data & 0x20) ? SetBit(D5_PORT, D5_PIN) : ClearBit(D5_PORT, D5_PIN);
     (data & 0x10) ? SetBit(D4_PORT, D4_PIN) : ClearBit(D4_PORT, D4_PIN);
     
-    // Enable pulse
+    // Pulse enable
     SetBit(EN_PORT, EN_PIN);
     _delay_us(1);
     ClearBit(EN_PORT, EN_PIN);
     
-    // Wait a bit
-    _delay_us(100);
+    _delay_us(200);
     
     // Send low nibble
     (data & 0x08) ? SetBit(D7_PORT, D7_PIN) : ClearBit(D7_PORT, D7_PIN);
@@ -1009,50 +1121,58 @@ void lcd_char(unsigned char data) {
     (data & 0x02) ? SetBit(D5_PORT, D5_PIN) : ClearBit(D5_PORT, D5_PIN);
     (data & 0x01) ? SetBit(D4_PORT, D4_PIN) : ClearBit(D4_PORT, D4_PIN);
     
-    // Enable pulse
+    // Pulse enable
     SetBit(EN_PORT, EN_PIN);
     _delay_us(1);
     ClearBit(EN_PORT, EN_PIN);
     
-    // Wait for character to be displayed
-    _delay_ms(1);
+    _delay_us(50);
 }
 
-void lcd_string(char *str) {
+// Function to display a string on the LCD
+void lcd_string(const char *str) {
     while (*str) {
         lcd_char(*str++);
     }
 }
 
-void lcd_clear(void) {
-    lcd_command(LCD_CLEAR);
-    _delay_ms(2);  // Clear command takes longer
+// Function to display a string from program memory
+void lcd_string_P(const char *str) {
+    char c;
+    while ((c = pgm_read_byte(str++))) {
+        lcd_char(c);
+    }
 }
 
+// Function to clear the LCD
+void lcd_clear(void) {
+    lcd_command(LCD_CLEAR);
+}
+
+// Function to initialize the keypad
 void keypad_init(void) {
-    // Set row pins as output
+    // Set row pins as outputs
     SetBit(ROW1_DDR, ROW1_PIN);
     SetBit(ROW2_DDR, ROW2_PIN);
     SetBit(ROW3_DDR, ROW3_PIN);
     SetBit(ROW4_DDR, ROW4_PIN);
     
-    // Set row pins HIGH
+    // Set row pins HIGH initially
     SetBit(ROW1_PORT, ROW1_PIN);
     SetBit(ROW2_PORT, ROW2_PIN);
     SetBit(ROW3_PORT, ROW3_PIN);
     SetBit(ROW4_PORT, ROW4_PIN);
     
-    // Set column pins as input with pull-up
+    // Set column pins as inputs with pull-ups
     ClearBit(COL1_DDR, COL1_PIN);
     ClearBit(COL2_DDR, COL2_PIN);
     ClearBit(COL3_DDR, COL3_PIN);
     ClearBit(COL4_DDR, COL4_PIN);
     ClearBit(COL5_DDR, COL5_PIN);
     
-    // Enable pull-up resistors on column pins
-    SetBit(COL1_PORT, COL1_PIN);
-    SetBit(COL2_PORT, COL2_PIN);
-    SetBit(COL3_PORT, COL3_PIN);
-    SetBit(COL4_PORT, COL4_PIN);
-    SetBit(COL5_PORT, COL5_PIN);
+    SetBit(COL1_PORT, COL1_PIN);  // Enable pull-up
+    SetBit(COL2_PORT, COL2_PIN);  // Enable pull-up
+    SetBit(COL3_PORT, COL3_PIN);  // Enable pull-up
+    SetBit(COL4_PORT, COL4_PIN);  // Enable pull-up
+    SetBit(COL5_PORT, COL5_PIN);  // Enable pull-up
 }
