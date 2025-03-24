@@ -48,6 +48,22 @@ double rk4_2(double x, double y1, double y2, double x0,
     }
     return y1;  // Return the sine value at x = x0
 }
+double fast_inv_sqrt(double x){
+    if(x <= 0) return 0;
+    x = (float) x;
+	long i;
+	float x2, y;
+	const float threehalfs = 1.5F;
+
+	x2 = x * 0.5F;
+	y  = x;
+	i  = * ( long * ) &y;
+	i  = 0x5f3759df - ( i >> 1 );
+	y  = * ( float * ) &i;
+	y  = y * ( threehalfs - ( x2 * y * y ) );
+
+	return (double) y;
+}
 
 double compute_scientific_functions(double value, int mode)
 {
@@ -111,14 +127,14 @@ else if (mode == 5)
 // Function to calculate log10(x)
 else if (mode == 6)
 {
-    return compute_scientific_functions(value/(2.3025), 5) ;
+    return 1/(2.3025) * compute_scientific_functions(value, 5) ;
 }
     // Function to calculate sqrt(x)
     else if (mode == 7)
     {
         double function(double x, double y) { return 1/(2*y); }
         if (value < 0) { 
-            printf("Math error."); 
+            printf("#"); 
             return 0;  // Added return value for error case
         }
         else if (value == 0) { return 0; }
@@ -138,10 +154,10 @@ else if (mode == 6)
     double step_dir = (value >= 0) ? 1 : -1;
 
     for (int i = 0; i < steps; i++) {
-        double k1 = h * compute_scientific_functions(1 - x0*x0, 7);
-        double k2 = h * compute_scientific_functions(1 - (x0 + step_dir*h/2)*(x0 + step_dir*h/2), 7);
-        double k3 = h * compute_scientific_functions(1 - (x0 + step_dir*h/2)*(x0 + step_dir*h/2), 7);
-        double k4 = h * compute_scientific_functions(1 - (x0 + step_dir*h)*(x0 + step_dir*h), 7);
+        double k1 = h * fast_inv_sqrt(1 - x0*x0);
+        double k2 = h * fast_inv_sqrt(1 - (x0 + step_dir*h/2)*(x0 + step_dir*h/2));
+        double k3 = h * fast_inv_sqrt(1 - (x0 + step_dir*h/2)*(x0 + step_dir*h/2));
+        double k4 = h * fast_inv_sqrt(1 - (x0 + step_dir*h)*(x0 + step_dir*h));
 
         y += step_dir * (k1 + 2*k2 + 2*k3 + k4) / 6;
         x0 += step_dir * h;
@@ -346,7 +362,7 @@ int main(void) {
     _delay_ms(2000);
     lcd_clear();
 
-    lcd_string_P(PSTR("Enter expression:"));
+    // lcd_string_P(PSTR("Enter expression:"));
     lcd_command(LCD_SET_CURSOR | 0x40);  // Move to second line
 
     while(1) {
@@ -356,10 +372,10 @@ int main(void) {
             if (key == 'S') {
                 shift_mode = !shift_mode;
                 lcd_clear();
-                lcd_string_P(shift_mode ? PSTR("Shift mode ON") : PSTR("Shift mode OFF"));
+                lcd_string_P(shift_mode ? PSTR("Shift ON") : PSTR("Shift OFF"));
                 _delay_ms(1000);
                 lcd_clear();
-                lcd_string_P(PSTR("Enter expression:"));
+                // lcd_string_P(PSTR("Enter expression:"));
                 lcd_command(LCD_SET_CURSOR | 0x40);
                 lcd_string(expression);
             } else if (key == 'A') {

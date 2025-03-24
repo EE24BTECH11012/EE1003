@@ -1,6 +1,8 @@
+#include <avr/io.h>
+#include <avr/pgmspace.h>
+#include <util/delay.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include <ctype.h>
 #include <stdio.h>
 
@@ -46,6 +48,22 @@ double rk4_2(double x, double y1, double y2, double x0,
     }
     return y1;  // Return the sine value at x = x0
 }
+double fast_inv_sqrt(double x){
+    if(x <= 0) return 0;
+    x = (float) x;
+	long i;
+	float x2, y;
+	const float threehalfs = 1.5F;
+
+	x2 = x * 0.5F;
+	y  = x;
+	i  = * ( long * ) &y;
+	i  = 0x5f3759df - ( i >> 1 );
+	y  = * ( float * ) &i;
+	y  = y * ( threehalfs - ( x2 * y * y ) );
+
+	return (double) y;
+}
 
 double compute_scientific_functions(double value, int mode)
 {
@@ -89,19 +107,19 @@ double compute_scientific_functions(double value, int mode)
 else if (mode == 5)
 {
     if (value <= 0) return 0.0;
-    if (value < 1) return -ln(1/value);
+    if (value < 1) return -compute_scientific_functions(1/value, 5);
     
     double x0 = 1.0, y = 0.0;
-    int steps = (int)((x - x0) / H);
+    int steps = (int)((value - x0) / h);
     
     for (int i = 0; i < steps; i++) {
-        double k1 = H / x0;
-        double k2 = H / (x0 + H/2);
-        double k3 = H / (x0 + H/2);
-        double k4 = H / (x0 + H);
+        double k1 = h / x0;
+        double k2 = h / (x0 + h/2);
+        double k3 = h / (x0 + h/2);
+        double k4 = h / (x0 + h);
         
         y += (k1 + 2*k2 + 2*k3 + k4) / 6;
-        x0 += H;
+        x0 += h;
     }
     
     return y;
@@ -109,14 +127,14 @@ else if (mode == 5)
 // Function to calculate log10(x)
 else if (mode == 6)
 {
-    return compute_scientific_functions(value/(2.3025), 5)
+    return 1/(2.3025) * compute_scientific_functions(value, 5) ;
 }
     // Function to calculate sqrt(x)
     else if (mode == 7)
     {
         double function(double x, double y) { return 1/(2*y); }
         if (value < 0) { 
-            printf("Math error."); 
+            printf("#"); 
             return 0;  // Added return value for error case
         }
         else if (value == 0) { return 0; }
@@ -136,10 +154,10 @@ else if (mode == 6)
     double step_dir = (value >= 0) ? 1 : -1;
 
     for (int i = 0; i < steps; i++) {
-        double k1 = h * compute_scientific_functions(1 - x0*x0, 7);
-        double k2 = h * compute_scientific_functions(1 - (x0 + step_dir*h/2)*(x0 + step_dir*h/2), 7);
-        double k3 = h * compute_scientific_functions(1 - (x0 + step_dir*h/2)*(x0 + step_dir*h/2), 7);
-        double k4 = h * compute_scientific_functions(1 - (x0 + step_dir*h)*(x0 + step_dir*h), 7);
+        double k1 = h * fast_inv_sqrt(1 - x0*x0);
+        double k2 = h * fast_inv_sqrt(1 - (x0 + step_dir*h/2)*(x0 + step_dir*h/2));
+        double k3 = h * fast_inv_sqrt(1 - (x0 + step_dir*h/2)*(x0 + step_dir*h/2));
+        double k4 = h * fast_inv_sqrt(1 - (x0 + step_dir*h)*(x0 + step_dir*h));
 
         y += step_dir * (k1 + 2*k2 + 2*k3 + k4) / 6;
         x0 += step_dir * h;
@@ -176,13 +194,240 @@ else if (mode == 6)
     
     for (int i = 0; i < 5; i++) {  // Usually converges in 3-5 iterations
         double y_cubed = guess * guess * guess;
-        guess = guess - (y_cubed - x) / (3 * guess * guess);
+        guess = guess - (y_cubed - value) / (3 * guess * guess);
     }
     
     return sign * guess;
     }
     
     return 0;  // Default return for invalid mode
+}
+
+// Define LCD pins
+#define RS 13      // Register Select pin
+#define EN 12      // Enable pin
+#define D4 5       // Data pin 4
+#define D5 4       // Data pin 5
+#define D6 3       // Data pin 6
+#define D7 2       // Data pin 7
+
+// Define keypad pins
+#define ROW1 A5    
+#define ROW2 A4    
+#define ROW3 A3     
+#define ROW4 A2     
+
+#define COL1 9      // D9
+#define COL2 10     // D10
+#define COL3 11     // D11
+#define COL4 8      // D8
+#define COL5 7      // D7
+
+// Define macros for pin manipulation
+#define SetBit(PORT, BIT) ((PORT) |= (1 << (BIT)))
+#define ClearBit(PORT, BIT) ((PORT) &= ~(1 << (BIT)))
+
+// LCD port and pin mappings
+#define RS_PORT PORTB
+#define RS_PIN 5         // Arduino pin 13 is PB5
+#define EN_PORT PORTB
+#define EN_PIN 4         // Arduino pin 12 is PB4
+#define D4_PORT PORTD
+#define D4_PIN 5         // Arduino pin 5 is PD5
+#define D5_PORT PORTD
+#define D5_PIN 4         // Arduino pin 4 is PD4
+#define D6_PORT PORTD
+#define D6_PIN 3         // Arduino pin 3 is PD3
+#define D7_PORT PORTD
+#define D7_PIN 2         // Arduino pin 2 is PD2
+
+// LCD direction registers
+#define RS_DDR DDRB
+#define EN_DDR DDRB
+#define D4_DDR DDRD
+#define D5_DDR DDRD
+#define D6_DDR DDRD
+#define D7_DDR DDRD
+
+// Keypad row port and pin definitions
+#define ROW1_PORT PORTC
+#define ROW1_PIN 5       // A5 → PC5
+#define ROW2_PORT PORTC
+#define ROW2_PIN 4       // A4 → PC4
+#define ROW3_PORT PORTC
+#define ROW3_PIN 3       // A3 → PC3
+#define ROW4_PORT PORTC
+#define ROW4_PIN 2       // A2 → PC2
+
+// Keypad row direction registers
+#define ROW1_DDR DDRC
+#define ROW2_DDR DDRC
+#define ROW3_DDR DDRC
+#define ROW4_DDR DDRC
+
+// Keypad column port and pin definitions
+#define COL1_PORT PORTB
+#define COL1_PIN 1       // D9 → PB1
+#define COL2_PORT PORTB
+#define COL2_PIN 2       // D10 → PB2
+#define COL3_PORT PORTB
+#define COL3_PIN 3       // D11 → PB3
+#define COL4_PORT PORTB
+#define COL4_PIN 0       // D8 → PB0
+#define COL5_PORT PORTD
+#define COL5_PIN 7       // D7 → PD7
+
+// Keypad column direction registers
+#define COL1_DDR DDRB
+#define COL2_DDR DDRB
+#define COL3_DDR DDRB
+#define COL4_DDR DDRB
+#define COL5_DDR DDRD
+
+// Keypad column input registers
+#define COL1_PIN_REG PINB
+#define COL2_PIN_REG PINB
+#define COL3_PIN_REG PINB
+#define COL4_PIN_REG PINB
+#define COL5_PIN_REG PIND
+// LCD commands
+#define LCD_CLEAR 0x01
+#define LCD_HOME 0x02
+#define LCD_ENTRY_MODE 0x06
+#define LCD_DISPLAY_ON 0x0C
+#define LCD_FUNCTION_4BIT_2LINE 0x28
+#define LCD_SET_CURSOR 0x80
+
+const char keypad_normal[4][5] PROGMEM = {
+    {'7', '8', '9', '+', 'D'},
+    {'4', '5', '6', '-', 'S'},
+    {'1', '2', '3', '*', 'A'},
+    {'0', '.', '=', '/', 'C'}
+};
+
+const char* const keypad_alpha[4][5] PROGMEM  = {
+    {"sin", "cos", "tan", "^", "BS"},
+    {"log", "ln", "e^", "√", "("},
+    {"π", "x²", "x³", "1/x", ")"},
+    {"EXP", "ANS", "M+", "M-", "MR"}
+};
+
+const char* const shiftFunctions[4][5] PROGMEM = {
+    {"asin", "acos", "atan", "y^x", "CLR"},
+    {"10^", "e", "abs", "cbrt", "["},
+    {"deg", "rad", "mod", "fact", "]"},
+    {"HEX", "DEC", "BIN", "OCT", "MC"}
+};
+
+
+// Global variables
+int shift_mode = 0;
+int alpha_mode = 0;
+double memory = 0.0;
+double last_result = 0.0;
+char buffer[32];  // Increased buffer size for string operations
+
+// Function prototypes
+void lcd_init(void);
+void lcd_command(unsigned char cmd);
+void lcd_char(unsigned char data);
+void lcd_string(const char *str);
+void lcd_string_P(const char *str);
+void lcd_clear(void);
+void keypad_init(void);
+char keypad_scan(void);
+void evaluate_expression(char *expression);
+double perform_operation(double a, double b, char op);
+double parse_number(char **expr);
+void handle_shift_mode(char *key, char *expression, int *expr_index);
+void handle_alpha_mode(char *key, char *expression, int *expr_index);
+void handle_special_functions(char *key, char *expression, int *expr_index);
+double factorial(int n);
+void write_string_to_buffer(const char *src, char *dest, int *index);
+
+#define MAX_EXPRESSION_LENGTH 64  // Increased for complex expressions
+
+int main(void) {
+    char expression[MAX_EXPRESSION_LENGTH] = "";
+    int expr_index = 0;
+
+    lcd_init();
+    keypad_init();
+
+    lcd_string_P(PSTR("Welcome !"));
+    _delay_ms(2000);
+    lcd_clear();
+
+    // lcd_string_P(PSTR("Enter expression:"));
+    lcd_command(LCD_SET_CURSOR | 0x40);  // Move to second line
+
+    while(1) {
+        char key = keypad_scan();
+
+        if (key != 0) {
+            if (key == 'S') {
+                shift_mode = !shift_mode;
+                lcd_clear();
+                lcd_string_P(shift_mode ? PSTR("Shift ON") : PSTR("Shift OFF"));
+                _delay_ms(1000);
+                lcd_clear();
+                // lcd_string_P(PSTR("Enter expression:"));
+                lcd_command(LCD_SET_CURSOR | 0x40);
+                lcd_string(expression);
+            } else if (key == 'A') {
+                alpha_mode = !alpha_mode;
+                lcd_clear();
+                lcd_string_P(alpha_mode ? PSTR("Alpha mode ON") : PSTR("Alpha mode OFF"));
+                _delay_ms(1000);
+                lcd_clear();
+                lcd_string_P(PSTR("Enter expression:"));
+                lcd_command(LCD_SET_CURSOR | 0x40);
+                lcd_string(expression);
+            } else if (key == 'C') {
+                lcd_clear();
+                lcd_string_P(PSTR("Enter expression:"));
+                lcd_command(LCD_SET_CURSOR | 0x40);
+                expr_index = 0;
+                expression[expr_index] = '\0';
+            } else if (key == 'D' && expr_index > 0) {
+                expr_index--;
+                expression[expr_index] = '\0';
+                lcd_command(LCD_SET_CURSOR | 0x40);
+                lcd_string_P(PSTR("                "));  // Clear second line
+                lcd_command(LCD_SET_CURSOR | 0x40);
+                lcd_string(expression);
+            } else if (key == '=') {
+                expression[expr_index] = '\0';
+                lcd_clear();
+                lcd_string_P(PSTR("Result:"));
+                lcd_command(LCD_SET_CURSOR | 0x40);
+                evaluate_expression(expression);
+                expr_index = 0;
+                expression[expr_index] = '\0';
+                _delay_ms(3000);
+                lcd_clear();
+                lcd_string_P(PSTR("Enter expression:"));
+                lcd_command(LCD_SET_CURSOR | 0x40);
+            } else if (expr_index < MAX_EXPRESSION_LENGTH - 1) {
+                if (shift_mode) {
+                    handle_shift_mode(&key, expression, &expr_index);
+                } else if (alpha_mode) {
+                    handle_alpha_mode(&key, expression, &expr_index);
+                } else {
+                    handle_special_functions(&key, expression, &expr_index);
+                }
+                
+                if (key != 0) {  // Only add the key if it wasn't handled by a special function
+                    expression[expr_index++] = key;
+                    expression[expr_index] = '\0';
+                    lcd_char(key);
+                }
+            }
+            _delay_ms(300);  // Debounce
+        }
+    }
+
+    return 0;
 }
 
 void handle_shift_mode(char *key, char *expression, int *expr_index) {
@@ -698,6 +943,7 @@ void evaluate_expression(char *expression) {
         if (*expr == ')') expr++;
         
         result = factorial(value);
+        }
     else {
         // For basic arithmetic expressions
         char op = '+'; // Start with addition
@@ -780,4 +1026,251 @@ void evaluate_expression(char *expression) {
         lcd_string(buffer);
     }
 }
+
+// Function to write a string to buffer and update index
+void write_string_to_buffer(const char *src, char *dest, int *index) {
+    int i = 0;
+    while (src[i] != '\0' && (*index + i) < MAX_EXPRESSION_LENGTH - 1) {
+        dest[*index + i] = src[i];
+        i++;
+    }
+    *index += i;
+    dest[*index] = '\0';
 }
+
+char keypad_scan(void) {
+    // Variable to store the pressed key
+    char pressed_key = 0;
+    
+    // Iterate through each row
+    for (int r = 0; r < 4; r++) {
+        // Set the current row to LOW, keep others HIGH
+        if (r == 0) ClearBit(ROW1_PORT, ROW1_PIN); else SetBit(ROW1_PORT, ROW1_PIN);
+        if (r == 1) ClearBit(ROW2_PORT, ROW2_PIN); else SetBit(ROW2_PORT, ROW2_PIN);
+        if (r == 2) ClearBit(ROW3_PORT, ROW3_PIN); else SetBit(ROW3_PORT, ROW3_PIN);
+        if (r == 3) ClearBit(ROW4_PORT, ROW4_PIN); else SetBit(ROW4_PORT, ROW4_PIN);
+        
+        // Small delay to allow signals to stabilize
+        _delay_us(10);
+        
+        // Check each column for the current row
+        if (!(COL1_PIN_REG & (1 << COL1_PIN))) {
+            pressed_key = pgm_read_byte(&keypad_normal[r][0]);
+        }
+        if (!(COL2_PIN_REG & (1 << COL2_PIN))) {
+            pressed_key = pgm_read_byte(&keypad_normal[r][1]);
+        }
+        if (!(COL3_PIN_REG & (1 << COL3_PIN))) {
+            pressed_key = pgm_read_byte(&keypad_normal[r][2]);
+        }
+        if (!(COL4_PIN_REG & (1 << COL4_PIN))) {
+            pressed_key = pgm_read_byte(&keypad_normal[r][3]);
+        }
+        if (!(COL5_PIN_REG & (1 << COL5_PIN))) {
+            pressed_key = pgm_read_byte(&keypad_normal[r][4]);
+        }
+        
+        // If a key was pressed, restore row states and return the key
+        if (pressed_key != 0) {
+            // Restore all rows to HIGH
+            SetBit(ROW1_PORT, ROW1_PIN);
+            SetBit(ROW2_PORT, ROW2_PIN);
+            SetBit(ROW3_PORT, ROW3_PIN);
+            SetBit(ROW4_PORT, ROW4_PIN);
+            
+            return pressed_key;
+        }
+    }
+    
+    // No key was pressed, restore row states
+    SetBit(ROW1_PORT, ROW1_PIN);
+    SetBit(ROW2_PORT, ROW2_PIN);
+    SetBit(ROW3_PORT, ROW3_PIN);
+    SetBit(ROW4_PORT, ROW4_PIN);
+    
+    return 0;
+}
+
+
+// Function to initialize the LCD
+void lcd_init(void) {
+    // Set data pins as output
+    SetBit(RS_DDR, RS_PIN);
+    SetBit(EN_DDR, EN_PIN);
+    SetBit(D4_DDR, D4_PIN);
+    SetBit(D5_DDR, D5_PIN);
+    SetBit(D6_DDR, D6_PIN);
+    SetBit(D7_DDR, D7_PIN);
+    
+    // Wait for LCD to initialize
+    _delay_ms(50);
+    
+    // 4-bit initialization sequence
+    // Set to 4-bit mode
+    ClearBit(RS_PORT, RS_PIN);  // RS = 0 for command
+    
+    // Function set - 8-bit mode first (3 times)
+    ClearBit(D4_PORT, D4_PIN);
+    ClearBit(D5_PORT, D5_PIN);
+    SetBit(D6_PORT, D6_PIN);
+    SetBit(D7_PORT, D7_PIN);
+    
+    // Pulse enable
+    SetBit(EN_PORT, EN_PIN);
+    _delay_us(1);
+    ClearBit(EN_PORT, EN_PIN);
+    _delay_ms(5);
+    
+    // Repeat again
+    SetBit(EN_PORT, EN_PIN);
+    _delay_us(1);
+    ClearBit(EN_PORT, EN_PIN);
+    _delay_ms(1);
+    
+    // Repeat third time
+    SetBit(EN_PORT, EN_PIN);
+    _delay_us(1);
+    ClearBit(EN_PORT, EN_PIN);
+    _delay_ms(1);
+    
+    // Now set to 4-bit mode
+    ClearBit(D7_PORT, D7_PIN);
+    SetBit(EN_PORT, EN_PIN);
+    _delay_us(1);
+    ClearBit(EN_PORT, EN_PIN);
+    _delay_ms(1);
+    
+    // Now we can use lcd_command function
+    // Set 4-bit interface, 2 line display, 5x8 font
+    lcd_command(LCD_FUNCTION_4BIT_2LINE);
+    // Display on, cursor on, blinking off
+    lcd_command(LCD_DISPLAY_ON);
+    // Entry mode set: increment cursor, no display shift
+    lcd_command(LCD_ENTRY_MODE);
+    // Clear display
+    lcd_command(LCD_CLEAR);
+    // Return home
+    lcd_command(LCD_HOME);
+    
+    _delay_ms(2);
+}
+
+// Function to send a command to the LCD
+void lcd_command(unsigned char cmd) {
+    // RS = 0 for command
+    ClearBit(RS_PORT, RS_PIN);
+    
+    // Send high nibble
+    (cmd & 0x80) ? SetBit(D7_PORT, D7_PIN) : ClearBit(D7_PORT, D7_PIN);
+    (cmd & 0x40) ? SetBit(D6_PORT, D6_PIN) : ClearBit(D6_PORT, D6_PIN);
+    (cmd & 0x20) ? SetBit(D5_PORT, D5_PIN) : ClearBit(D5_PORT, D5_PIN);
+    (cmd & 0x10) ? SetBit(D4_PORT, D4_PIN) : ClearBit(D4_PORT, D4_PIN);
+    
+    // Pulse enable
+    SetBit(EN_PORT, EN_PIN);
+    _delay_us(1);
+    ClearBit(EN_PORT, EN_PIN);
+    
+    _delay_us(200);
+    
+    // Send low nibble
+    (cmd & 0x08) ? SetBit(D7_PORT, D7_PIN) : ClearBit(D7_PORT, D7_PIN);
+    (cmd & 0x04) ? SetBit(D6_PORT, D6_PIN) : ClearBit(D6_PORT, D6_PIN);
+    (cmd & 0x02) ? SetBit(D5_PORT, D5_PIN) : ClearBit(D5_PORT, D5_PIN);
+    (cmd & 0x01) ? SetBit(D4_PORT, D4_PIN) : ClearBit(D4_PORT, D4_PIN);
+    
+    // Pulse enable
+    SetBit(EN_PORT, EN_PIN);
+    _delay_us(1);
+    ClearBit(EN_PORT, EN_PIN);
+    
+    // Commands need more time
+    if (cmd == LCD_CLEAR || cmd == LCD_HOME) {
+        _delay_ms(2);
+    } else {
+        _delay_us(50);
+    }
+}
+
+// Function to send data (character) to the LCD
+void lcd_char(unsigned char data) {
+    // RS = 1 for data
+    SetBit(RS_PORT, RS_PIN);
+    
+    // Send high nibble
+    (data & 0x80) ? SetBit(D7_PORT, D7_PIN) : ClearBit(D7_PORT, D7_PIN);
+    (data & 0x40) ? SetBit(D6_PORT, D6_PIN) : ClearBit(D6_PORT, D6_PIN);
+    (data & 0x20) ? SetBit(D5_PORT, D5_PIN) : ClearBit(D5_PORT, D5_PIN);
+    (data & 0x10) ? SetBit(D4_PORT, D4_PIN) : ClearBit(D4_PORT, D4_PIN);
+    
+    // Pulse enable
+    SetBit(EN_PORT, EN_PIN);
+    _delay_us(1);
+    ClearBit(EN_PORT, EN_PIN);
+    
+    _delay_us(200);
+    
+    // Send low nibble
+    (data & 0x08) ? SetBit(D7_PORT, D7_PIN) : ClearBit(D7_PORT, D7_PIN);
+    (data & 0x04) ? SetBit(D6_PORT, D6_PIN) : ClearBit(D6_PORT, D6_PIN);
+    (data & 0x02) ? SetBit(D5_PORT, D5_PIN) : ClearBit(D5_PORT, D5_PIN);
+    (data & 0x01) ? SetBit(D4_PORT, D4_PIN) : ClearBit(D4_PORT, D4_PIN);
+    
+    // Pulse enable
+    SetBit(EN_PORT, EN_PIN);
+    _delay_us(1);
+    ClearBit(EN_PORT, EN_PIN);
+    
+    _delay_us(50);
+}
+
+// Function to display a string on the LCD
+void lcd_string(const char *str) {
+    while (*str) {
+        lcd_char(*str++);
+    }
+}
+
+// Function to display a string from program memory
+void lcd_string_P(const char *str) {
+    char c;
+    while ((c = pgm_read_byte(str++))) {
+        lcd_char(c);
+    }
+}
+
+// Function to clear the LCD
+void lcd_clear(void) {
+    lcd_command(LCD_CLEAR);
+}
+
+// Function to initialize the keypad
+void keypad_init(void) {
+    // Set row pins as outputs
+    SetBit(ROW1_DDR, ROW1_PIN);
+    SetBit(ROW2_DDR, ROW2_PIN);
+    SetBit(ROW3_DDR, ROW3_PIN);
+    SetBit(ROW4_DDR, ROW4_PIN);
+    
+    // Set row pins HIGH initially
+    SetBit(ROW1_PORT, ROW1_PIN);
+    SetBit(ROW2_PORT, ROW2_PIN);
+    SetBit(ROW3_PORT, ROW3_PIN);
+    SetBit(ROW4_PORT, ROW4_PIN);
+    
+    // Set column pins as inputs with pull-ups
+    ClearBit(COL1_DDR, COL1_PIN);
+    ClearBit(COL2_DDR, COL2_PIN);
+    ClearBit(COL3_DDR, COL3_PIN);
+    ClearBit(COL4_DDR, COL4_PIN);
+    ClearBit(COL5_DDR, COL5_PIN);
+    
+    SetBit(COL1_PORT, COL1_PIN);  // Enable pull-up
+    SetBit(COL2_PORT, COL2_PIN);  // Enable pull-up
+    SetBit(COL3_PORT, COL3_PIN);  // Enable pull-up
+    SetBit(COL4_PORT, COL4_PIN);  // Enable pull-up
+    SetBit(COL5_PORT, COL5_PIN);  // Enable pull-up
+}
+
+
+
