@@ -154,6 +154,29 @@ else if (mode == 6)
         double function(double x, double y) { return 1.0 / (1 + x*x ) ; }
         return rk4_1(0, 0, value, function);
     }
+    // Function to calculate \cbrt{x}
+    if ( mode == 11 )
+    {
+          if (value == 0.0) return 0.0;
+    
+          int sign = (value > 0) ? 1 : -1;
+          value = ( value > 0 ) ? value : -value ;
+    
+          // Initial guess - a good approximation speeds up convergence
+    double guess = value / 3.0;
+    
+    // Newton's method iteration
+    // Formula: x_n+1 = x_n - f(x_n)/f'(x_n)
+    // For cube root: f(y) = y^3 - x, f'(y) = 3y^2
+    // So iteration becomes: y = y - (y^3 - x)/(3y^2) = y - (y - x/y^2)/3
+    
+    for (int i = 0; i < 5; i++) {  // Usually converges in 3-5 iterations
+        double y_cubed = guess * guess * guess;
+        guess = guess - (y_cubed - x) / (3 * guess * guess);
+    }
+    
+    return sign * guess;
+    }
     
     return 0;  // Default return for invalid mode
 }
@@ -897,7 +920,8 @@ void evaluate_expression(char *expression) {
         while (*expr && *expr != ')') expr++;
         if (*expr == ')') expr++;
         
-        result = fabs(value);
+        // result = fabs(value);
+        result = ( value > 0 ) ? value : -value ;
     } else if (strncmp(expr, "cbrt(", 5) == 0) {
         expr += 5;  // Skip "cbrt("
         double value = atof(expr);
@@ -905,7 +929,8 @@ void evaluate_expression(char *expression) {
         while (*expr && *expr != ')') expr++;
         if (*expr == ')') expr++;
         
-        result = cbrt(value);
+        // result = cbrt(value);
+        result = compute_scientific_functions(value, 11) ;
     } else if (strncmp(expr, "fact(", 5) == 0) {
         expr += 5;  // Skip "fact("
         int value = (int)atof(expr);
@@ -914,7 +939,25 @@ void evaluate_expression(char *expression) {
         if (*expr == ')') expr++;
         
         result = factorial(value);
-    } else {
+    }  else if (strncmp(expr, "^3", 2) == 0) {
+        expr += 2;  // Skip "fact("
+        int value = (int)atof(expr);
+        // Find closing parenthesis
+        while (*expr && *expr != ')') expr++;
+        if (*expr == ')') expr++;
+        
+        // result = factorial(value);
+        result = power(value, 3) ;
+    } else if (strncmp(expr, "^2", 2) == 0) {
+        expr += 2;  // Skip "fact("
+        int value = (int)atof(expr);
+        // Find closing parenthesis
+        while (*expr && *expr != ')') expr++;
+        if (*expr == ')') expr++;
+        
+        // result = factorial(value);
+        result = power(value, 2) ;
+    else {
         // For basic arithmetic expressions
         char op = '+'; // Start with addition
         double current_value = 0;
